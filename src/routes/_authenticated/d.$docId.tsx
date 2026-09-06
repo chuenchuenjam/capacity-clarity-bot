@@ -227,9 +227,9 @@ function DocumentPage() {
             className="mt-6 min-h-[300px] font-mono text-sm"
           />
         ) : (
-          <div className="prose-doc mt-6 max-w-none">
+          <div className="prose-doc mt-6 max-w-none text-sm leading-relaxed">
             {doc?.content ? (
-              <ReactMarkdown className="text-sm leading-relaxed">{doc.content}</ReactMarkdown>
+              <ReactMarkdown>{doc.content}</ReactMarkdown>
             ) : (
               <p className="text-sm text-muted-foreground italic">No content yet.</p>
             )}
