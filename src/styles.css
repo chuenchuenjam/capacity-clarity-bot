@@ -140,5 +140,51 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: "DM Sans", system-ui, sans-serif;
   }
 }
+
+:root {
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "DM Sans", system-ui, sans-serif;
+  --knowledge-sidebar: oklch(0.22 0.045 260);
+  --knowledge-sidebar-foreground: oklch(0.96 0.01 250);
+  --knowledge-sidebar-accent: oklch(0.28 0.05 255);
+  --knowledge-sidebar-accent-foreground: oklch(0.98 0.005 250);
+  --knowledge-sidebar-border: oklch(1 0 0 / 8%);
+  --knowledge-sidebar-ring: oklch(0.55 0.05 255);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.knowledge-sidebar {
+  background: linear-gradient(180deg, oklch(0.24 0.05 255) 0%, oklch(0.18 0.04 260) 100%);
+  color: var(--knowledge-sidebar-foreground);
+  --sidebar: var(--knowledge-sidebar);
+  --sidebar-foreground: var(--knowledge-sidebar-foreground);
+  --sidebar-accent: var(--knowledge-sidebar-accent);
+  --sidebar-accent-foreground: var(--knowledge-sidebar-accent-foreground);
+  --sidebar-border: var(--knowledge-sidebar-border);
+  --sidebar-ring: var(--knowledge-sidebar-ring);
+  --sidebar-primary: oklch(0.5 0.15 255);
+  --sidebar-primary-foreground: oklch(0.98 0.005 250);
+}
+
+.prose-doc h1,
+.prose-doc h2,
+.prose-doc h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  margin-top: 1.25em;
+  margin-bottom: 0.5em;
+}
+
+.prose-doc h1 { font-size: 1.5rem; }
+.prose-doc h2 { font-size: 1.25rem; }
+.prose-doc h3 { font-size: 1.1rem; }
+.prose-doc ul { list-style: disc; padding-left: 1.25rem; }
+.prose-doc ol { list-style: decimal; padding-left: 1.25rem; }
+.prose-doc a { color: var(--color-primary); text-decoration: underline; }
+.prose-doc p { margin-bottom: 0.75em; }
