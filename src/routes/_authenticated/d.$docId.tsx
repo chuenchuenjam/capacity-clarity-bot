@@ -393,24 +393,55 @@ function AttachmentRow({
   downloadUrl: (path: string) => Promise<string | null>;
 }) {
   const [url, setUrl] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+
+  const togglePreview = async () => {
+    if (!open && !url) {
+      const u = await downloadUrl(attachment.file_path);
+      setUrl(u);
+    }
+    setOpen((o) => !o);
+  };
 
   return (
-    <div className="flex items-center justify-between px-4 py-3">
-      <div className="flex items-center gap-3">
-        <FileText className="h-4 w-4 text-muted-foreground" />
-        <span className="text-sm font-medium">{attachment.file_name}</span>
-        <span className="text-xs text-muted-foreground">{formatBytes(attachment.size_bytes)}</span>
+    <div className="px-4 py-3">
+      <div className="flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => void togglePreview()}
+          className="flex min-w-0 items-center gap-3 text-left"
+        >
+          {open ? (
+            <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+          ) : (
+            <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+          )}
+          <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
+          <span className="truncate text-sm font-medium">{attachment.file_name}</span>
+          <span className="shrink-0 text-xs text-muted-foreground">
+            {formatBytes(attachment.size_bytes)}
+          </span>
+        </button>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={async () => {
+            const u = url ?? (await downloadUrl(attachment.file_path));
+            if (u) window.open(u, "_blank");
+          }}
+        >
+          <Download className="h-3.5 w-3.5" />
+        </Button>
       </div>
-      <Button
-        size="sm"
-        variant="ghost"
-        onClick={async () => {
-          const u = await downloadUrl(attachment.file_path);
-          if (u) window.open(u, "_blank");
-        }}
-      >
-        <Download className="h-3.5 w-3.5" />
-      </Button>
+      {open && (
+        <div className="mt-3">
+          <MediaPreview
+            fileName={attachment.file_name}
+            mimeType={attachment.mime_type}
+            url={url}
+          />
+        </div>
+      )}
     </div>
   );
 }
