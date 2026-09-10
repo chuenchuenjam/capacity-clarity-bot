@@ -17,6 +17,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ApiDeckRouteImport } from './routes/api/deck'
 import { Route as AuthenticatedDDocIdRouteImport } from './routes/_authenticated/d.$docId'
+import { Route as AuthenticatedDeckDeckIdRouteImport } from './routes/_authenticated/deck.$deckId'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
@@ -57,6 +58,11 @@ const AuthenticatedDDocIdRoute = AuthenticatedDDocIdRouteImport.update({
   path: '/d/$docId',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDeckDeckIdRoute = AuthenticatedDeckDeckIdRouteImport.update({
+  id: '/deck/$deckId',
+  path: '/deck/$deckId',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/api/chat': typeof ApiChatRoute
   '/api/deck': typeof ApiDeckRoute
   '/d/$docId': typeof AuthenticatedDDocIdRoute
+  '/deck/$deckId': typeof AuthenticatedDeckDeckIdRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/api/deck': typeof ApiDeckRoute
   '/': typeof AuthenticatedIndexRoute
   '/d/$docId': typeof AuthenticatedDDocIdRoute
+  '/deck/$deckId': typeof AuthenticatedDeckDeckIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/api/deck': typeof ApiDeckRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/d/$docId': typeof AuthenticatedDDocIdRoute
+  '/_authenticated/deck/$deckId': typeof AuthenticatedDeckDeckIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/api/deck'
     | '/d/$docId'
+    | '/deck/$deckId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/api/deck'
     | '/'
     | '/d/$docId'
+    | '/deck/$deckId'
   id:
     | '__root__'
     | '/_authenticated'
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/api/deck'
     | '/_authenticated/'
     | '/_authenticated/d/$docId'
+    | '/_authenticated/deck/$deckId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -184,6 +196,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDDocIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/deck/$deckId': {
+      id: '/_authenticated/deck/$deckId'
+      path: '/deck/$deckId'
+      fullPath: '/deck/$deckId'
+      preLoaderRoute: typeof AuthenticatedDeckDeckIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -191,12 +210,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedDDocIdRoute: typeof AuthenticatedDDocIdRoute
+  AuthenticatedDeckDeckIdRoute: typeof AuthenticatedDeckDeckIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedDDocIdRoute: AuthenticatedDDocIdRoute,
+  AuthenticatedDeckDeckIdRoute: AuthenticatedDeckDeckIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

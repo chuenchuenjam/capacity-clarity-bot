@@ -1,33 +1,53 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useChat } from "ai/react";
+import { useNavigate } from "@tanstack/react-router";
 import ReactMarkdown from "react-markdown";
-import { Send, Sparkles } from "lucide-react";
+import { Copy, Loader2, Presentation, Send, Sparkles } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/lib/auth";
+import { generateDeck } from "@/lib/deck";
 import { cn } from "@/lib/utils";
 
 const suggestions = [
   "What's the status of Data Intake?",
   "Which docs are still drafts?",
-  "Find the PPT template for competitive intro",
+  "Summarise the Agentic Bot project for leadership",
 ];
 
-export function ChatPanel() {
+export function ChatPanel({ onNavigated }: { onNavigated?: () => void }) {
   const { session } = useAuth();
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+  const navigate = useNavigate();
+  const { messages, input, setInput, handleInputChange, handleSubmit, isLoading } = useChat({
     api: "/api/chat",
     headers: session?.access_token
       ? { Authorization: `Bearer ${session.access_token}` }
       : {},
   });
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [deckBusy, setDeckBusy] = useState(false);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isLoading]);
+
+  const buildDeck = async (answer: string) => {
+    const question = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
+    if (!session?.access_token || !question) return;
+    setDeckBusy(true);
+    try {
+      const deckId = await generateDeck(session.access_token, question, answer);
+      onNavigated?.();
+      void navigate({ to: "/deck/$deckId", params: { deckId } });
+    } catch (error: any) {
+      toast.error(error?.message || "Could not build the deck");
+    } finally {
+      setDeckBusy(false);
+    }
+  };
 
   return (
     <div className="flex h-[calc(100vh-80px)] flex-col">
@@ -40,7 +60,7 @@ export function ChatPanel() {
                 <button
                   key={s}
                   type="button"
-                  onClick={() => handleInputChange({ target: { value: s } } as any)}
+                  onClick={() => setInput(s)}
                   className="block w-full rounded-md border border-border bg-muted/40 px-3 py-2 text-left text-xs text-foreground hover:bg-muted"
                 >
                   {s}
@@ -51,10 +71,7 @@ export function ChatPanel() {
           {messages.map((m) => (
             <div
               key={m.id}
-              className={cn(
-                "flex",
-                m.role === "user" ? "justify-end" : "justify-start",
-              )}
+              className={cn("flex flex-col", m.role === "user" ? "items-end" : "items-start")}
             >
               <div
                 className={cn(
@@ -72,6 +89,36 @@ export function ChatPanel() {
                   m.content
                 )}
               </div>
+              {m.role === "assistant" && !isLoading && (
+                <div className="mt-1.5 flex gap-1">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 px-2 text-xs"
+                    onClick={() => {
+                      void navigator.clipboard.writeText(m.content);
+                      toast.success("Copied");
+                    }}
+                  >
+                    <Copy className="mr-1 h-3 w-3" />
+                    Copy
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 px-2 text-xs"
+                    disabled={deckBusy}
+                    onClick={() => void buildDeck(m.content)}
+                  >
+                    {deckBusy ? (
+                      <Loader2 className="mr-1 h-3 w-3 animate-spin" />
+                    ) : (
+                      <Presentation className="mr-1 h-3 w-3" />
+                    )}
+                    Build deck
+                  </Button>
+                </div>
+              )}
             </div>
           ))}
           {isLoading && (
