@@ -104,11 +104,31 @@ function FolderBranch({
             <Plus className="h-3.5 w-3.5" />
           </button>
         )}
+        {onMoveFolder && (
+          <button
+            type="button"
+            aria-label={`Move ${node.name}`}
+            title="Move this section"
+            onClick={(e) => {
+              e.stopPropagation();
+              onMoveFolder(node.id);
+            }}
+            className="shrink-0 rounded p-1 text-sidebar-foreground/50 opacity-0 transition hover:bg-sidebar-accent hover:text-sidebar-foreground group-hover:opacity-100"
+          >
+            <MoveRight className="h-3.5 w-3.5" />
+          </button>
+        )}
       </div>
       {open && (
         <div className="mt-0.5">
           {node.children.map((child) => (
-            <FolderBranch key={child.id} node={child} depth={depth + 1} onAddPage={onAddPage} />
+            <FolderBranch
+              key={child.id}
+              node={child}
+              depth={depth + 1}
+              onAddPage={onAddPage}
+              onMoveFolder={onMoveFolder}
+            />
           ))}
           {node.documents.map((doc) => (
             <DocRow key={doc.id} doc={doc} depth={depth + 1} />
