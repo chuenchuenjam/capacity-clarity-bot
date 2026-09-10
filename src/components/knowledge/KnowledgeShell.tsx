@@ -158,6 +158,14 @@ export function KnowledgeShell({ children }: { children: React.ReactNode }) {
         <div className="flex-1 overflow-auto">{children}</div>
       </main>
 
+      <AddNodeDialog
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        mode={addMode}
+        defaultParentId={addParentId}
+        folders={treeQuery.data?.allFolders ?? []}
+      />
+
       <Sheet open={chatOpen} onOpenChange={setChatOpen}>
         <SheetContent className="w-[420px] sm:max-w-[420px]">
           <SheetHeader>
