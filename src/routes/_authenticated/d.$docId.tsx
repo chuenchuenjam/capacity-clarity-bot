@@ -167,10 +167,44 @@ function DocumentPage() {
   };
 
   const downloadUrl = async (path: string) => {
-    const { data, error } = await supabase.storage.from("attachments").createSignedUrl(path, 60 * 5);
+    const { data, error } = await supabase.storage.from("attachments").createSignedUrl(path, 60 * 60);
     if (error || !data) return null;
     return data.signedUrl;
   };
+
+  const addEmbed = async () => {
+    const url = embedUrl.trim();
+    if (!url) return;
+    setAddingEmbed(true);
+    try {
+      const { error } = await supabase.from("embeds").insert({
+        document_id: docId,
+        url,
+        provider: detectProvider(url),
+        title: embedTitle.trim() || null,
+        position: (embedsQuery.data?.length ?? 0) + 1,
+      });
+      if (error) throw error;
+      setEmbedUrl("");
+      setEmbedTitle("");
+      await queryClient.invalidateQueries({ queryKey: ["embeds", docId] });
+      toast.success("Embed added");
+    } catch (error: any) {
+      toast.error(error?.message || "Could not add the embed");
+    } finally {
+      setAddingEmbed(false);
+    }
+  };
+
+  const removeEmbed = async (id: string) => {
+    const { error } = await supabase.from("embeds").delete().eq("id", id);
+    if (error) {
+      toast.error("Could not remove the embed");
+      return;
+    }
+    await queryClient.invalidateQueries({ queryKey: ["embeds", docId] });
+  };
+
 
   return (
     <KnowledgeShell>
