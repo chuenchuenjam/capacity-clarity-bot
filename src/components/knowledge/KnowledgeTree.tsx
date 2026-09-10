@@ -54,10 +54,12 @@ function FolderBranch({
   node,
   depth = 0,
   onAddPage,
+  onMoveFolder,
 }: {
   node: FolderNode;
   depth?: number;
   onAddPage?: ((folderId: string) => void) | undefined;
+  onMoveFolder?: ((folderId: string) => void) | undefined;
 }) {
   const [open, setOpen] = useState(true);
   const hasChildren = node.children.length > 0 || node.documents.length > 0;
