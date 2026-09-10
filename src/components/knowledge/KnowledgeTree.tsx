@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useParams } from "@tanstack/react-router";
-import { ChevronRight, FileText, Folder, Lock, Plus } from "lucide-react";
+import { ChevronRight, FileText, Folder, Lock, MoveRight, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import type { FolderNode, DocumentRow, AccessLevel } from "@/lib/knowledge";
