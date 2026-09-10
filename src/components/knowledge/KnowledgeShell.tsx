@@ -168,15 +168,28 @@ export function KnowledgeShell({ children }: { children: React.ReactNode }) {
         folders={treeQuery.data?.allFolders ?? []}
       />
 
+      {moveFolderId && (
+        <MoveNodeDialog
+          open={!!moveFolderId}
+          onOpenChange={(o) => !o && setMoveFolderId(null)}
+          kind="folder"
+          nodeId={moveFolderId}
+          currentParentId={
+            treeQuery.data?.allFolders?.find((f) => f.id === moveFolderId)?.parent_id ?? null
+          }
+          folders={treeQuery.data?.allFolders ?? []}
+        />
+      )}
+
       <Sheet open={chatOpen} onOpenChange={setChatOpen}>
-        <SheetContent className="w-[420px] sm:max-w-[420px]">
+        <SheetContent className="w-[480px] sm:max-w-[480px]">
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2 text-sm">
-              <MessageSquare className="h-4 w-4" />
-              Knowledge Assistant
+              <Sparkles className="h-4 w-4" />
+              Ask Assistant
             </SheetTitle>
           </SheetHeader>
-          <ChatPanel />
+          <ChatPanel onNavigated={() => setChatOpen(false)} />
         </SheetContent>
       </Sheet>
     </div>
