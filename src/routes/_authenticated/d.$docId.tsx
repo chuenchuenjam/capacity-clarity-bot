@@ -317,7 +317,70 @@ function DocumentPage() {
             )}
           </div>
         </div>
+
+        <div className="mt-10 border-t pt-6">
+          <h3 className="flex items-center gap-2 text-sm font-semibold">
+            <Link2 className="h-4 w-4" />
+            Boards, dashboards & videos
+          </h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Paste a Miro, Figma, YouTube, Vimeo, Loom, Google Docs/Sheets/Slides or Power BI link.
+          </p>
+          {editable && (
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+              <Input
+                value={embedUrl}
+                onChange={(e) => setEmbedUrl(e.target.value)}
+                placeholder="https://..."
+                className="h-9 flex-1 text-sm"
+              />
+              <Input
+                value={embedTitle}
+                onChange={(e) => setEmbedTitle(e.target.value)}
+                placeholder="Label (optional)"
+                className="h-9 text-sm sm:w-48"
+              />
+              <Button size="sm" className="h-9" onClick={() => void addEmbed()} disabled={addingEmbed}>
+                <Plus className="mr-1.5 h-3.5 w-3.5" />
+                Add
+              </Button>
+            </div>
+          )}
+          <div className="mt-4 space-y-4">
+            {(embedsQuery.data ?? []).map((embed) => (
+              <div key={embed.id}>
+                <EmbedView url={embed.url} title={embed.title} />
+                {editable && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="mt-1 h-7 px-2 text-xs text-muted-foreground"
+                    onClick={() => void removeEmbed(embed.id)}
+                  >
+                    <Trash2 className="mr-1 h-3 w-3" />
+                    Remove
+                  </Button>
+                )}
+              </div>
+            ))}
+            {(embedsQuery.data ?? []).length === 0 && (
+              <p className="text-sm text-muted-foreground">Nothing embedded yet.</p>
+            )}
+          </div>
+        </div>
       </div>
+
+      {doc && (
+        <MoveNodeDialog
+          open={moveOpen}
+          onOpenChange={setMoveOpen}
+          kind="document"
+          nodeId={doc.id}
+          currentParentId={doc.folder_id}
+          folders={treeQuery.data?.allFolders ?? []}
+          onMoved={() => void queryClient.invalidateQueries({ queryKey: ["document", docId] })}
+        />
+      )}
     </KnowledgeShell>
   );
 }
