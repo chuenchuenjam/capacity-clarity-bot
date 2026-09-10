@@ -57,7 +57,7 @@ function FolderBranch({
 }: {
   node: FolderNode;
   depth?: number;
-  onAddPage?: (folderId: string) => void;
+  onAddPage?: ((folderId: string) => void) | undefined;
 }) {
   const [open, setOpen] = useState(true);
   const hasChildren = node.children.length > 0 || node.documents.length > 0;
@@ -124,7 +124,7 @@ export function KnowledgeTree({
 }: {
   tree: { folders: FolderNode[]; rootDocuments: DocumentRow[] };
   search: string;
-  onAddPage?: (folderId: string) => void;
+  onAddPage?: ((folderId: string) => void) | undefined;
 }) {
   const q = search.trim().toLowerCase();
 
