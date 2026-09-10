@@ -1,11 +1,16 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { Download, FileText, Paperclip, Trash2, Upload } from "lucide-react";
+import { ChevronDown, ChevronRight, Download, FileText, Link2, MoveRight, Paperclip, Plus, Trash2, Upload } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth, canEdit } from "@/lib/auth";
 import { fetchDocument, fetchAttachments, fetchTree, buildBreadcrumb, statusLabels } from "@/lib/knowledge";
+import { fetchEmbeds } from "@/lib/demos";
+import { detectProvider } from "@/lib/media";
+import { MediaPreview } from "@/components/media/MediaPreview";
+import { EmbedView } from "@/components/media/EmbedView";
+import { MoveNodeDialog } from "@/components/knowledge/MoveNodeDialog";
 import { updateDocument, deleteDocument } from "@/lib/knowledge.functions";
 import { KnowledgeShell } from "@/components/knowledge/KnowledgeShell";
 import { Button } from "@/components/ui/button";
