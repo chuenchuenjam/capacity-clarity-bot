@@ -168,7 +168,12 @@ export function KnowledgeTree({
   return (
     <div className="space-y-1 px-2 pb-4">
       {filteredFolders.map((folder) => (
-        <FolderBranch key={folder.id} node={folder} onAddPage={onAddPage} />
+        <FolderBranch
+          key={folder.id}
+          node={folder}
+          onAddPage={onAddPage}
+          onMoveFolder={onMoveFolder}
+        />
       ))}
       {tree.rootDocuments.filter(matchesDoc).map((doc) => (
         <DocRow key={doc.id} doc={doc} depth={0} />
