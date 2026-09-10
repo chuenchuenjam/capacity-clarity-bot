@@ -258,6 +258,10 @@ function DocumentPage() {
                   <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
                     Edit
                   </Button>
+                  <Button size="sm" variant="outline" onClick={() => setMoveOpen(true)}>
+                    <MoveRight className="mr-1.5 h-3.5 w-3.5" />
+                    Move
+                  </Button>
                   <Button size="sm" variant="destructive" onClick={() => void doDelete()}>
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
