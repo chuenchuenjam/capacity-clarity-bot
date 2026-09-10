@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { BookOpen, FilePlus, FolderPlus, LogOut, MessageSquare, Search, Shield, User, X } from "lucide-react";
 import { AddNodeDialog, type AddNodeMode } from "./AddNodeDialog";
+import { MoveNodeDialog } from "./MoveNodeDialog";
 import { useAuth, canEdit } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { fetchTree } from "@/lib/knowledge";
@@ -38,6 +39,7 @@ export function KnowledgeShell({ children }: { children: React.ReactNode }) {
   const [addOpen, setAddOpen] = useState(false);
   const [addMode, setAddMode] = useState<AddNodeMode>("page");
   const [addParentId, setAddParentId] = useState<string | null>(null);
+  const [moveFolderId, setMoveFolderId] = useState<string | null>(null);
   const treeQuery = useQuery({ queryKey: ["tree"], queryFn: fetchTree });
   const editable = canEdit(role);
 
