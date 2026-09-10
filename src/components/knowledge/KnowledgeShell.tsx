@@ -106,7 +106,12 @@ export function KnowledgeShell({ children }: { children: React.ReactNode }) {
             <KnowledgeTree
               tree={filtered}
               search={search}
-              {...(editable ? { onAddPage: (folderId: string) => openAdd("page", folderId) } : {})}
+              {...(editable
+                ? {
+                    onAddPage: (folderId: string) => openAdd("page", folderId),
+                    onMoveFolder: (folderId: string) => setMoveFolderId(folderId),
+                  }
+                : {})}
             />
           )}
         </div>
