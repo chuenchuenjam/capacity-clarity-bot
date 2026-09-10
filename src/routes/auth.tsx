@@ -76,30 +76,39 @@ function AuthPage() {
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </div>
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          </div>
+          {mode !== "forgot" && (
+            <div>
+              <Label htmlFor="password">Password</Label>
+              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            </div>
+          )}
           <Button type="submit" className="w-full" disabled={loading}>
-            {mode === "signin" ? "Sign in" : "Create account"}
+            {mode === "signin" ? "Sign in" : mode === "signup" ? "Create account" : "Send reset link"}
           </Button>
         </form>
 
-        <div className="mt-4 text-center text-sm text-muted-foreground">
+        <div className="mt-4 space-y-2 text-center text-sm text-muted-foreground">
+          {mode === "signin" && (
+            <div>
+              <button type="button" onClick={() => setMode("forgot")} className="text-primary underline">
+                Forgot password?
+              </button>
+            </div>
+          )}
           {mode === "signin" ? (
-            <>
+            <div>
               Don't have an account?{" "}
               <button type="button" onClick={() => setMode("signup")} className="text-primary underline">
                 Sign up
               </button>
-            </>
+            </div>
           ) : (
-            <>
-              Already have an account?{" "}
+            <div>
+              Back to{" "}
               <button type="button" onClick={() => setMode("signin")} className="text-primary underline">
                 Sign in
               </button>
-            </>
+            </div>
           )}
         </div>
 
