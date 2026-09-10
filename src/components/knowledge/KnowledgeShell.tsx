@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { BookOpen, LogOut, MessageSquare, Search, Shield, User, X } from "lucide-react";
+import { BookOpen, FilePlus, FolderPlus, LogOut, MessageSquare, Search, Shield, User, X } from "lucide-react";
+import { AddNodeDialog, type AddNodeMode } from "./AddNodeDialog";
 import { useAuth, canEdit } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { fetchTree } from "@/lib/knowledge";
@@ -34,9 +35,19 @@ export function KnowledgeShell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [chatOpen, setChatOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  const [addMode, setAddMode] = useState<AddNodeMode>("page");
+  const [addParentId, setAddParentId] = useState<string | null>(null);
   const treeQuery = useQuery({ queryKey: ["tree"], queryFn: fetchTree });
+  const editable = canEdit(role);
 
   const filtered = treeQuery.data ? filterTree(treeQuery.data, search) : { folders: [], rootDocuments: [] };
+
+  const openAdd = (mode: AddNodeMode, parentId: string | null) => {
+    setAddMode(mode);
+    setAddParentId(parentId);
+    setAddOpen(true);
+  };
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background">
@@ -63,11 +74,38 @@ export function KnowledgeShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
+        {editable && (
+          <div className="flex gap-1.5 px-3 pb-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => openAdd("page", treeQuery.data?.allFolders?.[0]?.id ?? null)}
+              className="h-7 flex-1 text-xs text-sidebar-foreground hover:bg-sidebar-accent/50"
+            >
+              <FilePlus className="mr-1.5 h-3 w-3" />
+              New page
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => openAdd("folder", null)}
+              className="h-7 flex-1 text-xs text-sidebar-foreground hover:bg-sidebar-accent/50"
+            >
+              <FolderPlus className="mr-1.5 h-3 w-3" />
+              New section
+            </Button>
+          </div>
+        )}
+
         <div className="flex-1 overflow-y-auto">
           {treeQuery.isLoading ? (
             <div className="px-4 py-6 text-xs text-sidebar-foreground/50">Loading...</div>
           ) : (
-            <KnowledgeTree tree={filtered} search={search} />
+            <KnowledgeTree
+              tree={filtered}
+              search={search}
+              {...(editable ? { onAddPage: (folderId: string) => openAdd("page", folderId) } : {})}
+            />
           )}
         </div>
 
@@ -119,6 +157,14 @@ export function KnowledgeShell({ children }: { children: React.ReactNode }) {
         </div>
         <div className="flex-1 overflow-auto">{children}</div>
       </main>
+
+      <AddNodeDialog
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        mode={addMode}
+        defaultParentId={addParentId}
+        folders={treeQuery.data?.allFolders ?? []}
+      />
 
       <Sheet open={chatOpen} onOpenChange={setChatOpen}>
         <SheetContent className="w-[420px] sm:max-w-[420px]">
