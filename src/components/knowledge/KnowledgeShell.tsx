@@ -152,14 +152,9 @@ export function KnowledgeShell({ children }: { children: React.ReactNode }) {
 
       <main className="relative flex min-w-0 flex-1 flex-col bg-background">
         <div className="flex items-center justify-end border-b border-border px-4 py-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setChatOpen(true)}
-            className="gap-1.5 text-xs"
-          >
-            <MessageSquare className="h-3.5 w-3.5" />
-            Ask assistant
+          <Button onClick={() => setChatOpen(true)} className="gap-2 shadow-sm">
+            <Sparkles className="h-4 w-4" />
+            Ask Assistant
           </Button>
         </div>
         <div className="flex-1 overflow-auto">{children}</div>
