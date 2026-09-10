@@ -83,11 +83,19 @@ function DocumentPage() {
     queryKey: ["attachments", docId],
     queryFn: () => fetchAttachments(docId),
   });
+  const embedsQuery = useQuery({
+    queryKey: ["embeds", docId],
+    queryFn: () => fetchEmbeds(docId),
+  });
   const treeQuery = useQuery({ queryKey: ["tree"], queryFn: fetchTree });
 
   const doc = docQuery.data;
   if (!doc && !docQuery.isLoading) throw notFound();
 
+  const [moveOpen, setMoveOpen] = useState(false);
+  const [embedUrl, setEmbedUrl] = useState("");
+  const [embedTitle, setEmbedTitle] = useState("");
+  const [addingEmbed, setAddingEmbed] = useState(false);
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(doc?.title ?? "");
   const [content, setContent] = useState(doc?.content ?? "");
