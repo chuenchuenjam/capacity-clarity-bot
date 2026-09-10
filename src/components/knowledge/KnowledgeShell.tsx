@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { BookOpen, FilePlus, FolderPlus, LogOut, MessageSquare, Search, Shield, User, X } from "lucide-react";
+import { BookOpen, FilePlus, FolderPlus, LogOut, Search, Shield, Sparkles, User } from "lucide-react";
 import { AddNodeDialog, type AddNodeMode } from "./AddNodeDialog";
 import { MoveNodeDialog } from "./MoveNodeDialog";
 import { useAuth, canEdit } from "@/lib/auth";
