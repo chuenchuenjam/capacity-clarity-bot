@@ -15,6 +15,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as ApiDeckRouteImport } from './routes/api/deck'
 import { Route as AuthenticatedDDocIdRouteImport } from './routes/_authenticated/d.$docId'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -46,6 +47,11 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiDeckRoute = ApiDeckRouteImport.update({
+  id: '/api/deck',
+  path: '/api/deck',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedDDocIdRoute = AuthenticatedDDocIdRouteImport.update({
   id: '/d/$docId',
   path: '/d/$docId',
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/deck': typeof ApiDeckRoute
   '/d/$docId': typeof AuthenticatedDDocIdRoute
 }
 export interface FileRoutesByTo {
@@ -65,6 +72,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/deck': typeof ApiDeckRoute
   '/': typeof AuthenticatedIndexRoute
   '/d/$docId': typeof AuthenticatedDDocIdRoute
 }
@@ -75,15 +83,29 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/deck': typeof ApiDeckRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/d/$docId': typeof AuthenticatedDDocIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/reset-password' | '/admin' | '/api/chat' | '/d/$docId'
+    | '/'
+    | '/auth'
+    | '/reset-password'
+    | '/admin'
+    | '/api/chat'
+    | '/api/deck'
+    | '/d/$docId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/auth' | '/reset-password' | '/admin' | '/api/chat' | '/' | '/d/$docId'
+  to:
+    | '/auth'
+    | '/reset-password'
+    | '/admin'
+    | '/api/chat'
+    | '/api/deck'
+    | '/'
+    | '/d/$docId'
   id:
     | '__root__'
     | '/_authenticated'
@@ -91,6 +113,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_authenticated/admin'
     | '/api/chat'
+    | '/api/deck'
     | '/_authenticated/'
     | '/_authenticated/d/$docId'
   fileRoutesById: FileRoutesById
@@ -100,6 +123,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ApiChatRoute: typeof ApiChatRoute
+  ApiDeckRoute: typeof ApiDeckRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -146,6 +170,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/deck': {
+      id: '/api/deck'
+      path: '/api/deck'
+      fullPath: '/api/deck'
+      preLoaderRoute: typeof ApiDeckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/d/$docId': {
       id: '/_authenticated/d/$docId'
       path: '/d/$docId'
@@ -176,6 +207,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ApiChatRoute: ApiChatRoute,
+  ApiDeckRoute: ApiDeckRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
