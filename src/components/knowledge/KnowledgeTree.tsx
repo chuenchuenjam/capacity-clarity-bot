@@ -120,9 +120,11 @@ function FolderBranch({
 export function KnowledgeTree({
   tree,
   search,
+  onAddPage,
 }: {
   tree: { folders: FolderNode[]; rootDocuments: DocumentRow[] };
   search: string;
+  onAddPage?: (folderId: string) => void;
 }) {
   const q = search.trim().toLowerCase();
 
@@ -142,7 +144,7 @@ export function KnowledgeTree({
   return (
     <div className="space-y-1 px-2 pb-4">
       {filteredFolders.map((folder) => (
-        <FolderBranch key={folder.id} node={folder} />
+        <FolderBranch key={folder.id} node={folder} onAddPage={onAddPage} />
       ))}
       {tree.rootDocuments.filter(matchesDoc).map((doc) => (
         <DocRow key={doc.id} doc={doc} depth={0} />
