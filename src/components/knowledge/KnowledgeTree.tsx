@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useParams } from "@tanstack/react-router";
-import { ChevronRight, FileText, Folder, Lock } from "lucide-react";
+import { ChevronRight, FileText, Folder, Lock, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import type { FolderNode, DocumentRow, AccessLevel } from "@/lib/knowledge";
@@ -53,40 +53,60 @@ function DocRow({ doc, depth }: { doc: DocumentRow; depth: number }) {
 function FolderBranch({
   node,
   depth = 0,
+  onAddPage,
 }: {
   node: FolderNode;
   depth?: number;
+  onAddPage?: (folderId: string) => void;
 }) {
   const [open, setOpen] = useState(true);
   const hasChildren = node.children.length > 0 || node.documents.length > 0;
 
   return (
     <div>
-      <button
-        type="button"
-        onClick={() => hasChildren && setOpen((o) => !o)}
+      <div
         className={cn(
-          "flex w-full items-center rounded-md py-1.5 pr-2 text-sm font-medium transition-colors",
-          "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
+          "group flex w-full items-center rounded-md pr-1 text-sm font-medium transition-colors",
+          "text-sidebar-foreground hover:bg-sidebar-accent/50",
         )}
-        style={{ paddingLeft: `${depth * 14 + 12}px` }}
       >
-        <ChevronRight
-          className={cn(
-            "mr-1 h-3.5 w-3.5 shrink-0 transition-transform",
-            open && "rotate-90",
-            !hasChildren && "invisible",
-          )}
-        />
-        <AccessIcon level={node.access_level} />
-        <Folder className="mr-2 h-3.5 w-3.5 shrink-0 text-sidebar-foreground/60" />
-        <span className="truncate">{node.name}</span>
-        <BadgeChip value={node.badge} />
-      </button>
+        <button
+          type="button"
+          onClick={() => hasChildren && setOpen((o) => !o)}
+          className="flex min-w-0 flex-1 items-center py-1.5 text-left"
+          style={{ paddingLeft: `${depth * 14 + 12}px` }}
+        >
+          <ChevronRight
+            className={cn(
+              "mr-1 h-3.5 w-3.5 shrink-0 transition-transform",
+              open && "rotate-90",
+              !hasChildren && "invisible",
+            )}
+          />
+          <AccessIcon level={node.access_level} />
+          <Folder className="mr-2 h-3.5 w-3.5 shrink-0 text-sidebar-foreground/60" />
+          <span className="truncate">{node.name}</span>
+          <BadgeChip value={node.badge} />
+        </button>
+        {onAddPage && (
+          <button
+            type="button"
+            aria-label={`Add page in ${node.name}`}
+            title="Add page here"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddPage(node.id);
+            }}
+            className="shrink-0 rounded p-1 text-sidebar-foreground/50 opacity-0 transition hover:bg-sidebar-accent hover:text-sidebar-foreground group-hover:opacity-100"
+          >
+            <Plus className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
       {open && (
         <div className="mt-0.5">
           {node.children.map((child) => (
-            <FolderBranch key={child.id} node={child} depth={depth + 1} />
+            <FolderBranch key={child.id} node={child} depth={depth + 1} onAddPage={onAddPage} />
           ))}
           {node.documents.map((doc) => (
             <DocRow key={doc.id} doc={doc} depth={depth + 1} />
