@@ -74,11 +74,38 @@ export function KnowledgeShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
+        {editable && (
+          <div className="flex gap-1.5 px-3 pb-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => openAdd("page", treeQuery.data?.allFolders?.[0]?.id ?? null)}
+              className="h-7 flex-1 text-xs text-sidebar-foreground hover:bg-sidebar-accent/50"
+            >
+              <FilePlus className="mr-1.5 h-3 w-3" />
+              New page
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => openAdd("folder", null)}
+              className="h-7 flex-1 text-xs text-sidebar-foreground hover:bg-sidebar-accent/50"
+            >
+              <FolderPlus className="mr-1.5 h-3 w-3" />
+              New section
+            </Button>
+          </div>
+        )}
+
         <div className="flex-1 overflow-y-auto">
           {treeQuery.isLoading ? (
             <div className="px-4 py-6 text-xs text-sidebar-foreground/50">Loading...</div>
           ) : (
-            <KnowledgeTree tree={filtered} search={search} />
+            <KnowledgeTree
+              tree={filtered}
+              search={search}
+              {...(editable ? { onAddPage: (folderId: string) => openAdd("page", folderId) } : {})}
+            />
           )}
         </div>
 
