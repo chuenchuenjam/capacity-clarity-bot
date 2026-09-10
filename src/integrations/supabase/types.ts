@@ -82,6 +82,81 @@ export type Database = {
         }
         Relationships: []
       }
+      decks: {
+        Row: {
+          created_at: string
+          id: string
+          slides: Json
+          source_question: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          slides?: Json
+          source_question?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          slides?: Json
+          source_question?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      demos: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string
+          id: string
+          position: number
+          product_url: string | null
+          tag: string | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          video_path: string | null
+          video_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          position?: number
+          product_url?: string | null
+          tag?: string | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          video_path?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          id?: string
+          position?: number
+          product_url?: string | null
+          tag?: string | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          video_path?: string | null
+          video_url?: string | null
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           badge: string | null
@@ -131,6 +206,50 @@ export type Database = {
             columns: ["folder_id"]
             isOneToOne: false
             referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      embeds: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          document_id: string
+          id: string
+          position: number
+          provider: string
+          title: string | null
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          document_id: string
+          id?: string
+          position?: number
+          provider?: string
+          title?: string | null
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          document_id?: string
+          id?: string
+          position?: number
+          provider?: string
+          title?: string | null
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "embeds_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
             referencedColumns: ["id"]
           },
         ]
