@@ -26,7 +26,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup" | "forgot">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -35,8 +35,19 @@ function AuthPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({ email, password });
+      if (mode === "forgot") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        toast.success("Check your email for a password reset link.");
+        setMode("signin");
+      } else if (mode === "signup") {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: window.location.origin },
+        });
         if (error) throw error;
         toast.success("Check your email to confirm your account.");
       } else {
@@ -65,30 +76,39 @@ function AuthPage() {
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </div>
-          <div>
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          </div>
+          {mode !== "forgot" && (
+            <div>
+              <Label htmlFor="password">Password</Label>
+              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            </div>
+          )}
           <Button type="submit" className="w-full" disabled={loading}>
-            {mode === "signin" ? "Sign in" : "Create account"}
+            {mode === "signin" ? "Sign in" : mode === "signup" ? "Create account" : "Send reset link"}
           </Button>
         </form>
 
-        <div className="mt-4 text-center text-sm text-muted-foreground">
+        <div className="mt-4 space-y-2 text-center text-sm text-muted-foreground">
+          {mode === "signin" && (
+            <div>
+              <button type="button" onClick={() => setMode("forgot")} className="text-primary underline">
+                Forgot password?
+              </button>
+            </div>
+          )}
           {mode === "signin" ? (
-            <>
+            <div>
               Don't have an account?{" "}
               <button type="button" onClick={() => setMode("signup")} className="text-primary underline">
                 Sign up
               </button>
-            </>
+            </div>
           ) : (
-            <>
-              Already have an account?{" "}
+            <div>
+              Back to{" "}
               <button type="button" onClick={() => setMode("signin")} className="text-primary underline">
                 Sign in
               </button>
-            </>
+            </div>
           )}
         </div>
 
