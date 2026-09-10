@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { BookOpen, LogOut, MessageSquare, Search, Shield, User, X } from "lucide-react";
+import { BookOpen, FilePlus, FolderPlus, LogOut, MessageSquare, Search, Shield, User, X } from "lucide-react";
+import { AddNodeDialog, type AddNodeMode } from "./AddNodeDialog";
 import { useAuth, canEdit } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { fetchTree } from "@/lib/knowledge";
@@ -34,9 +35,19 @@ export function KnowledgeShell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [chatOpen, setChatOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  const [addMode, setAddMode] = useState<AddNodeMode>("page");
+  const [addParentId, setAddParentId] = useState<string | null>(null);
   const treeQuery = useQuery({ queryKey: ["tree"], queryFn: fetchTree });
+  const editable = canEdit(role);
 
   const filtered = treeQuery.data ? filterTree(treeQuery.data, search) : { folders: [], rootDocuments: [] };
+
+  const openAdd = (mode: AddNodeMode, parentId: string | null) => {
+    setAddMode(mode);
+    setAddParentId(parentId);
+    setAddOpen(true);
+  };
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background">
