@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useParams } from "@tanstack/react-router";
-import { ChevronRight, FileText, Folder, Lock, Plus } from "lucide-react";
+import { ChevronRight, FileText, Folder, Lock, MoveRight, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import type { FolderNode, DocumentRow, AccessLevel } from "@/lib/knowledge";
@@ -54,10 +54,12 @@ function FolderBranch({
   node,
   depth = 0,
   onAddPage,
+  onMoveFolder,
 }: {
   node: FolderNode;
   depth?: number;
   onAddPage?: ((folderId: string) => void) | undefined;
+  onMoveFolder?: ((folderId: string) => void) | undefined;
 }) {
   const [open, setOpen] = useState(true);
   const hasChildren = node.children.length > 0 || node.documents.length > 0;
@@ -102,11 +104,31 @@ function FolderBranch({
             <Plus className="h-3.5 w-3.5" />
           </button>
         )}
+        {onMoveFolder && (
+          <button
+            type="button"
+            aria-label={`Move ${node.name}`}
+            title="Move this section"
+            onClick={(e) => {
+              e.stopPropagation();
+              onMoveFolder(node.id);
+            }}
+            className="shrink-0 rounded p-1 text-sidebar-foreground/50 opacity-0 transition hover:bg-sidebar-accent hover:text-sidebar-foreground group-hover:opacity-100"
+          >
+            <MoveRight className="h-3.5 w-3.5" />
+          </button>
+        )}
       </div>
       {open && (
         <div className="mt-0.5">
           {node.children.map((child) => (
-            <FolderBranch key={child.id} node={child} depth={depth + 1} onAddPage={onAddPage} />
+            <FolderBranch
+              key={child.id}
+              node={child}
+              depth={depth + 1}
+              onAddPage={onAddPage}
+              onMoveFolder={onMoveFolder}
+            />
           ))}
           {node.documents.map((doc) => (
             <DocRow key={doc.id} doc={doc} depth={depth + 1} />
@@ -121,10 +143,12 @@ export function KnowledgeTree({
   tree,
   search,
   onAddPage,
+  onMoveFolder,
 }: {
   tree: { folders: FolderNode[]; rootDocuments: DocumentRow[] };
   search: string;
   onAddPage?: ((folderId: string) => void) | undefined;
+  onMoveFolder?: ((folderId: string) => void) | undefined;
 }) {
   const q = search.trim().toLowerCase();
 
@@ -144,7 +168,12 @@ export function KnowledgeTree({
   return (
     <div className="space-y-1 px-2 pb-4">
       {filteredFolders.map((folder) => (
-        <FolderBranch key={folder.id} node={folder} onAddPage={onAddPage} />
+        <FolderBranch
+          key={folder.id}
+          node={folder}
+          onAddPage={onAddPage}
+          onMoveFolder={onMoveFolder}
+        />
       ))}
       {tree.rootDocuments.filter(matchesDoc).map((doc) => (
         <DocRow key={doc.id} doc={doc} depth={0} />

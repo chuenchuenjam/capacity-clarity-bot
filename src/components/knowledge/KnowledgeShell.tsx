@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { BookOpen, FilePlus, FolderPlus, LogOut, MessageSquare, Search, Shield, User, X } from "lucide-react";
+import { BookOpen, FilePlus, FolderPlus, LogOut, Search, Shield, Sparkles, User } from "lucide-react";
 import { AddNodeDialog, type AddNodeMode } from "./AddNodeDialog";
+import { MoveNodeDialog } from "./MoveNodeDialog";
 import { useAuth, canEdit } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { fetchTree } from "@/lib/knowledge";
@@ -38,6 +39,7 @@ export function KnowledgeShell({ children }: { children: React.ReactNode }) {
   const [addOpen, setAddOpen] = useState(false);
   const [addMode, setAddMode] = useState<AddNodeMode>("page");
   const [addParentId, setAddParentId] = useState<string | null>(null);
+  const [moveFolderId, setMoveFolderId] = useState<string | null>(null);
   const treeQuery = useQuery({ queryKey: ["tree"], queryFn: fetchTree });
   const editable = canEdit(role);
 
@@ -104,7 +106,12 @@ export function KnowledgeShell({ children }: { children: React.ReactNode }) {
             <KnowledgeTree
               tree={filtered}
               search={search}
-              {...(editable ? { onAddPage: (folderId: string) => openAdd("page", folderId) } : {})}
+              {...(editable
+                ? {
+                    onAddPage: (folderId: string) => openAdd("page", folderId),
+                    onMoveFolder: (folderId: string) => setMoveFolderId(folderId),
+                  }
+                : {})}
             />
           )}
         </div>
@@ -145,14 +152,9 @@ export function KnowledgeShell({ children }: { children: React.ReactNode }) {
 
       <main className="relative flex min-w-0 flex-1 flex-col bg-background">
         <div className="flex items-center justify-end border-b border-border px-4 py-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setChatOpen(true)}
-            className="gap-1.5 text-xs"
-          >
-            <MessageSquare className="h-3.5 w-3.5" />
-            Ask assistant
+          <Button onClick={() => setChatOpen(true)} className="gap-2 shadow-sm">
+            <Sparkles className="h-4 w-4" />
+            Ask Assistant
           </Button>
         </div>
         <div className="flex-1 overflow-auto">{children}</div>
@@ -166,15 +168,28 @@ export function KnowledgeShell({ children }: { children: React.ReactNode }) {
         folders={treeQuery.data?.allFolders ?? []}
       />
 
+      {moveFolderId && (
+        <MoveNodeDialog
+          open={!!moveFolderId}
+          onOpenChange={(o) => !o && setMoveFolderId(null)}
+          kind="folder"
+          nodeId={moveFolderId}
+          currentParentId={
+            treeQuery.data?.allFolders?.find((f) => f.id === moveFolderId)?.parent_id ?? null
+          }
+          folders={treeQuery.data?.allFolders ?? []}
+        />
+      )}
+
       <Sheet open={chatOpen} onOpenChange={setChatOpen}>
-        <SheetContent className="w-[420px] sm:max-w-[420px]">
+        <SheetContent className="w-[480px] sm:max-w-[480px]">
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2 text-sm">
-              <MessageSquare className="h-4 w-4" />
-              Knowledge Assistant
+              <Sparkles className="h-4 w-4" />
+              Ask Assistant
             </SheetTitle>
           </SheetHeader>
-          <ChatPanel />
+          <ChatPanel onNavigated={() => setChatOpen(false)} />
         </SheetContent>
       </Sheet>
     </div>

@@ -1,11 +1,16 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { Download, FileText, Paperclip, Trash2, Upload } from "lucide-react";
+import { ChevronDown, ChevronRight, Download, FileText, Link2, MoveRight, Paperclip, Plus, Trash2, Upload } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth, canEdit } from "@/lib/auth";
 import { fetchDocument, fetchAttachments, fetchTree, buildBreadcrumb, statusLabels } from "@/lib/knowledge";
+import { fetchEmbeds } from "@/lib/demos";
+import { detectProvider } from "@/lib/media";
+import { MediaPreview } from "@/components/media/MediaPreview";
+import { EmbedView } from "@/components/media/EmbedView";
+import { MoveNodeDialog } from "@/components/knowledge/MoveNodeDialog";
 import { updateDocument, deleteDocument } from "@/lib/knowledge.functions";
 import { KnowledgeShell } from "@/components/knowledge/KnowledgeShell";
 import { Button } from "@/components/ui/button";
@@ -78,11 +83,19 @@ function DocumentPage() {
     queryKey: ["attachments", docId],
     queryFn: () => fetchAttachments(docId),
   });
+  const embedsQuery = useQuery({
+    queryKey: ["embeds", docId],
+    queryFn: () => fetchEmbeds(docId),
+  });
   const treeQuery = useQuery({ queryKey: ["tree"], queryFn: fetchTree });
 
   const doc = docQuery.data;
   if (!doc && !docQuery.isLoading) throw notFound();
 
+  const [moveOpen, setMoveOpen] = useState(false);
+  const [embedUrl, setEmbedUrl] = useState("");
+  const [embedTitle, setEmbedTitle] = useState("");
+  const [addingEmbed, setAddingEmbed] = useState(false);
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(doc?.title ?? "");
   const [content, setContent] = useState(doc?.content ?? "");
@@ -154,10 +167,44 @@ function DocumentPage() {
   };
 
   const downloadUrl = async (path: string) => {
-    const { data, error } = await supabase.storage.from("attachments").createSignedUrl(path, 60 * 5);
+    const { data, error } = await supabase.storage.from("attachments").createSignedUrl(path, 60 * 60);
     if (error || !data) return null;
     return data.signedUrl;
   };
+
+  const addEmbed = async () => {
+    const url = embedUrl.trim();
+    if (!url) return;
+    setAddingEmbed(true);
+    try {
+      const { error } = await supabase.from("embeds").insert({
+        document_id: docId,
+        url,
+        provider: detectProvider(url),
+        title: embedTitle.trim() || null,
+        position: (embedsQuery.data?.length ?? 0) + 1,
+      });
+      if (error) throw error;
+      setEmbedUrl("");
+      setEmbedTitle("");
+      await queryClient.invalidateQueries({ queryKey: ["embeds", docId] });
+      toast.success("Embed added");
+    } catch (error: any) {
+      toast.error(error?.message || "Could not add the embed");
+    } finally {
+      setAddingEmbed(false);
+    }
+  };
+
+  const removeEmbed = async (id: string) => {
+    const { error } = await supabase.from("embeds").delete().eq("id", id);
+    if (error) {
+      toast.error("Could not remove the embed");
+      return;
+    }
+    await queryClient.invalidateQueries({ queryKey: ["embeds", docId] });
+  };
+
 
   return (
     <KnowledgeShell>
@@ -210,6 +257,10 @@ function DocumentPage() {
                   </span>
                   <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
                     Edit
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => setMoveOpen(true)}>
+                    <MoveRight className="mr-1.5 h-3.5 w-3.5" />
+                    Move
                   </Button>
                   <Button size="sm" variant="destructive" onClick={() => void doDelete()}>
                     <Trash2 className="h-3.5 w-3.5" />
@@ -266,7 +317,70 @@ function DocumentPage() {
             )}
           </div>
         </div>
+
+        <div className="mt-10 border-t pt-6">
+          <h3 className="flex items-center gap-2 text-sm font-semibold">
+            <Link2 className="h-4 w-4" />
+            Boards, dashboards & videos
+          </h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Paste a Miro, Figma, YouTube, Vimeo, Loom, Google Docs/Sheets/Slides or Power BI link.
+          </p>
+          {editable && (
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+              <Input
+                value={embedUrl}
+                onChange={(e) => setEmbedUrl(e.target.value)}
+                placeholder="https://..."
+                className="h-9 flex-1 text-sm"
+              />
+              <Input
+                value={embedTitle}
+                onChange={(e) => setEmbedTitle(e.target.value)}
+                placeholder="Label (optional)"
+                className="h-9 text-sm sm:w-48"
+              />
+              <Button size="sm" className="h-9" onClick={() => void addEmbed()} disabled={addingEmbed}>
+                <Plus className="mr-1.5 h-3.5 w-3.5" />
+                Add
+              </Button>
+            </div>
+          )}
+          <div className="mt-4 space-y-4">
+            {(embedsQuery.data ?? []).map((embed) => (
+              <div key={embed.id}>
+                <EmbedView url={embed.url} title={embed.title} />
+                {editable && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="mt-1 h-7 px-2 text-xs text-muted-foreground"
+                    onClick={() => void removeEmbed(embed.id)}
+                  >
+                    <Trash2 className="mr-1 h-3 w-3" />
+                    Remove
+                  </Button>
+                )}
+              </div>
+            ))}
+            {(embedsQuery.data ?? []).length === 0 && (
+              <p className="text-sm text-muted-foreground">Nothing embedded yet.</p>
+            )}
+          </div>
+        </div>
       </div>
+
+      {doc && (
+        <MoveNodeDialog
+          open={moveOpen}
+          onOpenChange={setMoveOpen}
+          kind="document"
+          nodeId={doc.id}
+          currentParentId={doc.folder_id}
+          folders={treeQuery.data?.allFolders ?? []}
+          onMoved={() => void queryClient.invalidateQueries({ queryKey: ["document", docId] })}
+        />
+      )}
     </KnowledgeShell>
   );
 }
@@ -279,24 +393,55 @@ function AttachmentRow({
   downloadUrl: (path: string) => Promise<string | null>;
 }) {
   const [url, setUrl] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+
+  const togglePreview = async () => {
+    if (!open && !url) {
+      const u = await downloadUrl(attachment.file_path);
+      setUrl(u);
+    }
+    setOpen((o) => !o);
+  };
 
   return (
-    <div className="flex items-center justify-between px-4 py-3">
-      <div className="flex items-center gap-3">
-        <FileText className="h-4 w-4 text-muted-foreground" />
-        <span className="text-sm font-medium">{attachment.file_name}</span>
-        <span className="text-xs text-muted-foreground">{formatBytes(attachment.size_bytes)}</span>
+    <div className="px-4 py-3">
+      <div className="flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => void togglePreview()}
+          className="flex min-w-0 items-center gap-3 text-left"
+        >
+          {open ? (
+            <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+          ) : (
+            <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+          )}
+          <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
+          <span className="truncate text-sm font-medium">{attachment.file_name}</span>
+          <span className="shrink-0 text-xs text-muted-foreground">
+            {formatBytes(attachment.size_bytes)}
+          </span>
+        </button>
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={async () => {
+            const u = url ?? (await downloadUrl(attachment.file_path));
+            if (u) window.open(u, "_blank");
+          }}
+        >
+          <Download className="h-3.5 w-3.5" />
+        </Button>
       </div>
-      <Button
-        size="sm"
-        variant="ghost"
-        onClick={async () => {
-          const u = await downloadUrl(attachment.file_path);
-          if (u) window.open(u, "_blank");
-        }}
-      >
-        <Download className="h-3.5 w-3.5" />
-      </Button>
+      {open && (
+        <div className="mt-3">
+          <MediaPreview
+            fileName={attachment.file_name}
+            mimeType={attachment.mime_type}
+            url={url}
+          />
+        </div>
+      )}
     </div>
   );
 }
