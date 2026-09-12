@@ -88,9 +88,7 @@ function DocumentPage() {
     queryFn: () => fetchEmbeds(docId),
   });
   const treeQuery = useQuery({ queryKey: ["tree"], queryFn: fetchTree });
-
   const doc = docQuery.data;
-  if (!doc && !docQuery.isLoading) throw notFound();
 
   const [moveOpen, setMoveOpen] = useState(false);
   const [embedUrl, setEmbedUrl] = useState("");
@@ -205,11 +203,16 @@ function DocumentPage() {
     await queryClient.invalidateQueries({ queryKey: ["embeds", docId] });
   };
 
+  if (!doc && !docQuery.isLoading) throw notFound();
+  if (docQuery.isLoading) {
+    return <KnowledgeShell><div className="mx-auto max-w-4xl px-4 py-12 text-sm text-muted-foreground sm:px-8">Loading knowledge…</div></KnowledgeShell>;
+  }
 
   return (
     <KnowledgeShell>
-      <div className="mx-auto max-w-4xl p-8">
-        <nav className="flex items-center gap-1 text-xs text-muted-foreground">
+      <div className="presentation-grid min-h-full">
+      <article className="mx-auto max-w-4xl px-4 py-8 sm:px-8 sm:py-12">
+        <nav className="flex flex-wrap items-center gap-1 text-xs font-medium text-muted-foreground">
           <Link to="/" className="hover:text-foreground">Knowledge Center</Link>
           {breadcrumb.map((folder) => (
             <span key={folder.id} className="flex items-center gap-1">
@@ -219,7 +222,7 @@ function DocumentPage() {
           ))}
         </nav>
 
-        <div className="mt-4 flex items-start justify-between gap-4">
+        <header className="mt-6 flex flex-col justify-between gap-5 border-b pb-7 sm:flex-row sm:items-start">
           {editing ? (
             <Input
               value={title}
@@ -227,10 +230,10 @@ function DocumentPage() {
               className="h-10 text-xl font-semibold"
             />
           ) : (
-            <h1 className="font-display text-2xl font-semibold">{doc?.title}</h1>
+            <div><p className="mb-2 text-xs font-semibold uppercase text-primary">Project knowledge</p><h1 className="font-display text-3xl font-semibold sm:text-4xl">{doc?.title}</h1></div>
           )}
           {editable && (
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {editing ? (
                 <>
                   <Select value={status} onValueChange={(v) => setStatus(v as any)}>
@@ -252,7 +255,7 @@ function DocumentPage() {
                 </>
               ) : (
                 <>
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                   <span className="rounded-full border border-primary/15 bg-primary/8 px-2.5 py-1 text-xs font-medium text-primary">
                     {statusLabels[doc?.status ?? "draft"]}
                   </span>
                   <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
@@ -269,7 +272,7 @@ function DocumentPage() {
               )}
             </div>
           )}
-        </div>
+        </header>
 
         {editing ? (
           <Textarea
@@ -278,7 +281,7 @@ function DocumentPage() {
             className="mt-6 min-h-[300px] font-mono text-sm"
           />
         ) : (
-          <div className="prose-doc mt-6 max-w-none text-sm leading-relaxed">
+          <div className="prose-doc mt-8 max-w-none text-[15px] leading-7">
             {doc?.content ? (
               <ReactMarkdown>{doc.content}</ReactMarkdown>
             ) : (
@@ -287,11 +290,11 @@ function DocumentPage() {
           </div>
         )}
 
-        <div className="mt-10 border-t pt-6">
-          <h3 className="flex items-center gap-2 text-sm font-semibold">
-            <Paperclip className="h-4 w-4" />
+        <section className="mt-12 border-t pt-7">
+          <h2 className="flex items-center gap-2 font-display text-lg font-semibold">
+            <Paperclip className="h-4 w-4 text-primary" />
             Attachments
-          </h3>
+          </h2>
           {editable && (
             <label className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-md border bg-background px-3 py-2 text-xs font-medium hover:bg-muted">
               <Upload className="h-3.5 w-3.5" />
@@ -308,7 +311,7 @@ function DocumentPage() {
               />
             </label>
           )}
-          <div className="mt-3 divide-y rounded-lg border">
+          <div className="mt-4 divide-y overflow-hidden rounded-xl border bg-card shadow-soft">
             {(attachmentsQuery.data ?? []).map((att) => (
               <AttachmentRow key={att.id} attachment={att} downloadUrl={downloadUrl} />
             ))}
@@ -316,13 +319,13 @@ function DocumentPage() {
               <div className="px-4 py-3 text-sm text-muted-foreground">No attachments</div>
             )}
           </div>
-        </div>
+        </section>
 
-        <div className="mt-10 border-t pt-6">
-          <h3 className="flex items-center gap-2 text-sm font-semibold">
-            <Link2 className="h-4 w-4" />
+        <section className="mt-12 border-t pt-7">
+          <h2 className="flex items-center gap-2 font-display text-lg font-semibold">
+            <Link2 className="h-4 w-4 text-primary" />
             Boards, dashboards & videos
-          </h3>
+          </h2>
           <p className="mt-1 text-xs text-muted-foreground">
             Paste a Miro, Figma, YouTube, Vimeo, Loom, Google Docs/Sheets/Slides or Power BI link.
           </p>
@@ -367,8 +370,8 @@ function DocumentPage() {
               <p className="text-sm text-muted-foreground">Nothing embedded yet.</p>
             )}
           </div>
-        </div>
-      </div>
+        </section>
+      </article></div>
 
       {doc && (
         <MoveNodeDialog

@@ -3,6 +3,7 @@ import { Link, useParams } from "@tanstack/react-router";
 import { ChevronRight, FileText, Folder, Lock, MoveRight, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import type { FolderNode, DocumentRow, AccessLevel } from "@/lib/knowledge";
 
 function BadgeChip({ value }: { value: string | null }) {
@@ -72,10 +73,11 @@ function FolderBranch({
           "text-sidebar-foreground hover:bg-sidebar-accent/50",
         )}
       >
-        <button
+        <Button
           type="button"
+          variant="ghost"
           onClick={() => hasChildren && setOpen((o) => !o)}
-          className="flex min-w-0 flex-1 items-center py-1.5 text-left"
+          className="h-auto min-w-0 flex-1 justify-start rounded-md py-1.5 pr-1 text-left text-sidebar-foreground hover:bg-transparent hover:text-sidebar-foreground"
           style={{ paddingLeft: `${depth * 14 + 12}px` }}
         >
           <ChevronRight
@@ -89,34 +91,38 @@ function FolderBranch({
           <Folder className="mr-2 h-3.5 w-3.5 shrink-0 text-sidebar-foreground/60" />
           <span className="truncate">{node.name}</span>
           <BadgeChip value={node.badge} />
-        </button>
+        </Button>
         {onAddPage && (
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon-sm"
             aria-label={`Add page in ${node.name}`}
             title="Add page here"
             onClick={(e) => {
               e.stopPropagation();
               onAddPage(node.id);
             }}
-            className="shrink-0 rounded p-1 text-sidebar-foreground/50 opacity-0 transition hover:bg-sidebar-accent hover:text-sidebar-foreground group-hover:opacity-100"
+            className="h-7 w-7 shrink-0 text-sidebar-foreground/50 opacity-0 transition hover:bg-sidebar-accent hover:text-sidebar-foreground group-hover:opacity-100"
           >
             <Plus className="h-3.5 w-3.5" />
-          </button>
+          </Button>
         )}
         {onMoveFolder && (
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon-sm"
             aria-label={`Move ${node.name}`}
             title="Move this section"
             onClick={(e) => {
               e.stopPropagation();
               onMoveFolder(node.id);
             }}
-            className="shrink-0 rounded p-1 text-sidebar-foreground/50 opacity-0 transition hover:bg-sidebar-accent hover:text-sidebar-foreground group-hover:opacity-100"
+            className="h-7 w-7 shrink-0 text-sidebar-foreground/50 opacity-0 transition hover:bg-sidebar-accent hover:text-sidebar-foreground group-hover:opacity-100"
           >
             <MoveRight className="h-3.5 w-3.5" />
-          </button>
+          </Button>
         )}
       </div>
       {open && (

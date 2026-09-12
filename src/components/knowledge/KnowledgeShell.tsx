@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { BookOpen, FilePlus, FolderPlus, LogOut, Search, Shield, Sparkles, User } from "lucide-react";
+import { Bot, BookOpen, FilePlus, FolderPlus, LogOut, Menu, Search, Shield, User } from "lucide-react";
 import { AddNodeDialog, type AddNodeMode } from "./AddNodeDialog";
 import { MoveNodeDialog } from "./MoveNodeDialog";
 import { useAuth, canEdit } from "@/lib/auth";
@@ -36,6 +36,7 @@ export function KnowledgeShell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [chatOpen, setChatOpen] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [addMode, setAddMode] = useState<AddNodeMode>("page");
   const [addParentId, setAddParentId] = useState<string | null>(null);
@@ -51,11 +52,10 @@ export function KnowledgeShell({ children }: { children: React.ReactNode }) {
     setAddOpen(true);
   };
 
-  return (
-    <div className="flex h-screen w-full overflow-hidden bg-background">
-      <aside className="flex w-72 shrink-0 flex-col knowledge-sidebar">
+  const sidebar = (
+      <div className="flex h-full flex-col knowledge-sidebar">
         <div className="flex items-center gap-2 px-4 py-4">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
             <BookOpen className="h-4 w-4" />
           </div>
           <div>
@@ -148,13 +148,25 @@ export function KnowledgeShell({ children }: { children: React.ReactNode }) {
             </Button>
           </div>
         </div>
-      </aside>
+      </div>
+  );
+
+  return (
+    <div className="flex h-screen w-full overflow-hidden bg-background">
+      <aside className="hidden w-72 shrink-0 border-r border-sidebar-border lg:block">{sidebar}</aside>
+
+      <Sheet open={navOpen} onOpenChange={setNavOpen}>
+        <SheetContent side="left" className="w-[86vw] max-w-80 border-0 p-0">{sidebar}</SheetContent>
+      </Sheet>
 
       <main className="relative flex min-w-0 flex-1 flex-col bg-background">
-        <div className="flex items-center justify-end border-b border-border px-4 py-2">
-          <Button onClick={() => setChatOpen(true)} className="gap-2 shadow-sm">
-            <Sparkles className="h-4 w-4" />
-            Ask Assistant
+        <div className="flex h-16 items-center justify-between border-b border-border/70 bg-card/80 px-4 backdrop-blur-xl lg:justify-end lg:px-6">
+          <Button size="icon" variant="ghost" className="lg:hidden" onClick={() => setNavOpen(true)} aria-label="Open navigation">
+            <Menu className="h-5 w-5" />
+          </Button>
+          <Button onClick={() => setChatOpen(true)} className="gap-2 rounded-full px-5 shadow-lg shadow-primary/20">
+            <Bot className="h-4 w-4" />
+            Ask AI
           </Button>
         </div>
         <div className="flex-1 overflow-auto">{children}</div>
@@ -182,11 +194,11 @@ export function KnowledgeShell({ children }: { children: React.ReactNode }) {
       )}
 
       <Sheet open={chatOpen} onOpenChange={setChatOpen}>
-        <SheetContent className="w-[480px] sm:max-w-[480px]">
+        <SheetContent className="w-full border-l border-border/60 p-0 sm:max-w-[560px]">
           <SheetHeader>
-            <SheetTitle className="flex items-center gap-2 text-sm">
-              <Sparkles className="h-4 w-4" />
-              Ask Assistant
+            <SheetTitle className="flex items-center gap-3 border-b px-6 py-5 text-base">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground"><Bot className="h-4 w-4" /></span>
+              Knowledge Assistant
             </SheetTitle>
           </SheetHeader>
           <ChatPanel onNavigated={() => setChatOpen(false)} />
