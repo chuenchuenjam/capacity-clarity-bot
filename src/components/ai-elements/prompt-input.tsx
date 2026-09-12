@@ -40,7 +40,20 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import type { ChatStatus, FileUIPart, SourceDocumentUIPart } from "ai";
+type ChatStatus = "submitted" | "streaming" | "ready" | "error";
+type FileUIPart = {
+  type: "file";
+  mediaType: string;
+  filename?: string;
+  url: string;
+};
+type SourceDocumentUIPart = {
+  type: "source-document";
+  sourceId: string;
+  mediaType: string;
+  title: string;
+  filename?: string;
+};
 import {
   CornerDownLeftIcon,
   ImageIcon,

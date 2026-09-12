@@ -1,14 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useChat } from "ai/react";
 import { useNavigate } from "@tanstack/react-router";
-import ReactMarkdown from "react-markdown";
-import { Copy, Loader2, Presentation, Send, Sparkles } from "lucide-react";
+import { Bot, Copy, FileSearch, Loader2, Presentation } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useAuth } from "@/lib/auth";
 import { generateDeck } from "@/lib/deck";
-import { cn } from "@/lib/utils";
+import { Conversation, ConversationContent, ConversationEmptyState, ConversationScrollButton } from "@/components/ai-elements/conversation";
+import { Message, MessageAction, MessageActions, MessageContent, MessageResponse } from "@/components/ai-elements/message";
+import { PromptInput, PromptInputFooter, PromptInputSubmit, PromptInputTextarea } from "@/components/ai-elements/prompt-input";
+import { Shimmer } from "@/components/ai-elements/shimmer";
 
 const suggestions = [
   "What's the status of Data Intake?",
@@ -25,14 +26,7 @@ export function ChatPanel({ onNavigated }: { onNavigated?: () => void }) {
       ? { Authorization: `Bearer ${session.access_token}` }
       : {},
   });
-  const scrollRef = useRef<HTMLDivElement>(null);
   const [deckBusy, setDeckBusy] = useState(false);
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages, isLoading]);
 
   const buildDeck = async (answer: string) => {
     const question = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
@@ -50,63 +44,43 @@ export function ChatPanel({ onNavigated }: { onNavigated?: () => void }) {
   };
 
   return (
-    <div className="flex h-[calc(100vh-80px)] flex-col">
-      <div ref={scrollRef} className="flex-1 overflow-y-auto pr-2">
-        <div className="space-y-4 py-4">
+    <div className="flex h-[calc(100vh-80px)] flex-col bg-background">
+      <Conversation className="min-h-0">
+        <ConversationContent className="gap-6 px-5 py-6 sm:px-6">
           {messages.length === 0 && (
-            <div className="space-y-2 px-1">
-              <p className="text-sm text-muted-foreground">Try asking:</p>
+            <ConversationEmptyState className="min-h-[60vh] justify-center p-3">
+              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Bot className="h-6 w-6" /></span>
+              <div className="mt-2 space-y-1"><h3 className="font-display text-xl font-semibold">What do you need to know?</h3><p className="max-w-sm text-sm text-muted-foreground">Ask across project pages and turn the answer into a presentation.</p></div>
+              <div className="mt-5 grid w-full gap-2">
               {suggestions.map((s) => (
-                <button
+                <Button
                   key={s}
                   type="button"
+                  variant="outline"
                   onClick={() => setInput(s)}
-                  className="block w-full rounded-md border border-border bg-muted/40 px-3 py-2 text-left text-xs text-foreground hover:bg-muted"
+                  className="h-auto justify-start whitespace-normal rounded-xl px-4 py-3 text-left text-xs font-medium"
                 >
+                  <FileSearch className="mr-2 h-4 w-4 shrink-0 text-primary" />
                   {s}
-                </button>
+                </Button>
               ))}
-            </div>
+              </div>
+            </ConversationEmptyState>
           )}
           {messages.map((m) => (
-            <div
-              key={m.id}
-              className={cn("flex flex-col", m.role === "user" ? "items-end" : "items-start")}
-            >
-              <div
-                className={cn(
-                  "max-w-[90%] rounded-lg px-3 py-2 text-sm",
-                  m.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-foreground",
-                )}
-              >
-                {m.role === "assistant" ? (
-                  <div className="prose prose-sm dark:prose-invert">
-                    <ReactMarkdown>{m.content}</ReactMarkdown>
-                  </div>
-                ) : (
-                  m.content
-                )}
-              </div>
+            <Message key={m.id} from={m.role}>
+              <MessageContent>{m.role === "assistant" ? <MessageResponse>{m.content}</MessageResponse> : m.content}</MessageContent>
               {m.role === "assistant" && !isLoading && (
-                <div className="mt-1.5 flex gap-1">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-7 px-2 text-xs"
+                <MessageActions>
+                  <MessageAction tooltip="Copy answer" label="Copy answer"
                     onClick={() => {
                       void navigator.clipboard.writeText(m.content);
                       toast.success("Copied");
-                    }}
-                  >
-                    <Copy className="mr-1 h-3 w-3" />
-                    Copy
-                  </Button>
+                    }}><Copy className="h-3.5 w-3.5" /></MessageAction>
                   <Button
                     size="sm"
-                    variant="ghost"
-                    className="h-7 px-2 text-xs"
+                    variant="outline"
+                    className="h-8 rounded-lg px-3 text-xs"
                     disabled={deckBusy}
                     onClick={() => void buildDeck(m.content)}
                   >
@@ -115,33 +89,30 @@ export function ChatPanel({ onNavigated }: { onNavigated?: () => void }) {
                     ) : (
                       <Presentation className="mr-1 h-3 w-3" />
                     )}
-                    Build deck
+                    Generate deck
                   </Button>
-                </div>
+                </MessageActions>
               )}
-            </div>
+            </Message>
           ))}
           {isLoading && (
-            <div className="flex justify-start">
-              <div className="flex max-w-[90%] items-center gap-2 rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground">
-                <Sparkles className="h-3 w-3 animate-pulse" />
-                Thinking...
-              </div>
-            </div>
+            <Message from="assistant"><MessageContent><Shimmer className="text-sm">Searching team knowledge...</Shimmer></MessageContent></Message>
           )}
-        </div>
-      </div>
-      <form onSubmit={handleSubmit} className="mt-2 flex gap-2 border-t border-border pt-3">
-        <Input
+        </ConversationContent>
+        <ConversationScrollButton />
+      </Conversation>
+      <div className="border-t bg-card/80 p-4 backdrop-blur-xl sm:p-5">
+      <PromptInput onSubmit={(_message, event) => handleSubmit(event)} className="rounded-xl border-primary/15 bg-background shadow-soft">
+        <PromptInputTextarea
           value={input}
           onChange={handleInputChange}
-          placeholder="Ask about projects, docs, or status..."
-          className="h-9 flex-1 text-sm"
+          placeholder="Ask about projects, status, or resources..."
+          className="min-h-20 px-4 text-sm"
         />
-        <Button type="submit" size="icon" className="h-9 w-9 shrink-0" disabled={!input.trim()}>
-          <Send className="h-4 w-4" />
-        </Button>
-      </form>
+        <PromptInputFooter className="justify-end"><PromptInputSubmit status={isLoading ? "streaming" : "ready"} disabled={!input.trim()} /></PromptInputFooter>
+      </PromptInput>
+      <p className="mt-2 text-center text-[10px] text-muted-foreground">Answers include only knowledge you have permission to access.</p>
+      </div>
     </div>
   );
 }
