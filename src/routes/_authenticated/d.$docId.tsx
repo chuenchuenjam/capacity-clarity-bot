@@ -88,6 +88,7 @@ function DocumentPage() {
     queryFn: () => fetchEmbeds(docId),
   });
   const treeQuery = useQuery({ queryKey: ["tree"], queryFn: fetchTree });
+  const doc = docQuery.data;
 
   const [moveOpen, setMoveOpen] = useState(false);
   const [embedUrl, setEmbedUrl] = useState("");
@@ -99,7 +100,6 @@ function DocumentPage() {
   const [status, setStatus] = useState(doc?.status ?? "draft");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const doc = docQuery.data;
 
   useEffect(() => {
     if (doc) {
