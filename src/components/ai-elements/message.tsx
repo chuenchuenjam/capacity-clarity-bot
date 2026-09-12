@@ -30,7 +30,7 @@ import {
 import { Streamdown } from "streamdown";
 
 export type MessageProps = HTMLAttributes<HTMLDivElement> & {
-  from: "system" | "user" | "assistant" | "data";
+  from: "system" | "user" | "assistant" | "data" | "function" | "tool";
 };
 
 export const Message = ({ className, from, ...props }: MessageProps) => (

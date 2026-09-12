@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { KeyRound } from "lucide-react";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
@@ -59,9 +60,11 @@ function ResetPasswordPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <div className="w-full max-w-sm rounded-xl border bg-card p-6 shadow-sm">
-        <h1 className="text-center font-display text-xl font-semibold">Reset password</h1>
+    <div className="presentation-grid flex min-h-screen items-center justify-center bg-background p-4">
+      <div className="w-full max-w-md rounded-2xl border bg-card p-7 shadow-lift sm:p-9">
+        <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary"><KeyRound className="h-5 w-5" /></span>
+        <h1 className="mt-5 text-center font-display text-2xl font-semibold">Reset password</h1>
+        <p className="mt-2 text-center text-sm text-muted-foreground">Choose a secure password for your Knowledge Center account.</p>
         {valid ? (
           <form onSubmit={submit} className="mt-6 space-y-4">
             <div>
@@ -72,7 +75,7 @@ function ResetPasswordPage() {
               <Label htmlFor="confirm-password">Confirm password</Label>
               <Input id="confirm-password" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} required minLength={6} />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <Button type="submit" className="h-11 w-full rounded-xl" disabled={loading}>
               Update password
             </Button>
           </form>

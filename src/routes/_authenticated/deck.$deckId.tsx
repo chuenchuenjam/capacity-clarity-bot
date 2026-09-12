@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Download, FilePlus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Download, FilePlus, Presentation } from "lucide-react";
 import { toast } from "sonner";
 import { KnowledgeShell } from "@/components/knowledge/KnowledgeShell";
 import { Button } from "@/components/ui/button";
@@ -62,16 +62,18 @@ function DeckPage() {
 
   return (
     <KnowledgeShell>
-      <div className="mx-auto max-w-4xl p-8">
+      <div className="presentation-grid min-h-full px-4 py-8 sm:px-8 sm:py-10">
+      <div className="mx-auto max-w-5xl">
         {deckQuery.isLoading ? (
           <p className="text-sm text-muted-foreground">Loading deck…</p>
         ) : !deck ? (
           <p className="text-sm text-muted-foreground">This deck is not available.</p>
         ) : (
           <>
-            <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="flex flex-wrap items-start justify-between gap-5">
               <div>
-                <h1 className="font-display text-2xl font-semibold">{deck.title}</h1>
+                <p className="flex items-center gap-2 text-xs font-semibold uppercase text-primary"><Presentation className="h-3.5 w-3.5" /> AI-generated briefing</p>
+                <h1 className="mt-2 font-display text-3xl font-semibold sm:text-4xl">{deck.title}</h1>
                 {deck.source_question && (
                   <p className="mt-1 text-sm text-muted-foreground">From: “{deck.source_question}”</p>
                 )}
@@ -90,9 +92,11 @@ function DeckPage() {
               </div>
             </div>
 
-            <div className="mt-6 aspect-video w-full overflow-hidden rounded-xl border bg-card p-10 shadow-sm">
-              <h2 className="font-display text-2xl font-semibold">{slide?.title}</h2>
-              <ul className="mt-6 space-y-3 text-base">
+            <div className="relative mt-8 aspect-video w-full overflow-hidden rounded-xl border bg-card p-6 shadow-lift sm:p-12">
+              <div className="absolute right-5 top-5 text-xs font-semibold text-muted-foreground">{String(index + 1).padStart(2, "0")}</div>
+              <div className="h-1 w-16 rounded-full bg-primary" />
+              <h2 className="mt-6 max-w-3xl font-display text-2xl font-semibold sm:text-4xl">{slide?.title}</h2>
+              <ul className="mt-6 space-y-3 text-sm sm:mt-8 sm:space-y-4 sm:text-lg">
                 {slide?.bullets.map((b, i) => (
                   <li key={i} className="flex gap-3">
                     <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
@@ -102,7 +106,7 @@ function DeckPage() {
               </ul>
             </div>
 
-            <div className="mt-4 flex items-center justify-between">
+            <div className="mt-5 flex items-center justify-between rounded-full border bg-card px-2 py-1.5 shadow-soft">
               <Button
                 size="sm"
                 variant="ghost"
@@ -125,14 +129,14 @@ function DeckPage() {
             </div>
 
             {slide?.notes && (
-              <div className="mt-6 rounded-lg border bg-muted/40 p-4 text-sm text-muted-foreground">
-                <p className="mb-1 text-xs font-semibold uppercase tracking-wide">Speaker notes</p>
+              <div className="mt-6 rounded-xl border bg-card p-5 text-sm text-muted-foreground shadow-soft">
+                <p className="mb-2 text-xs font-semibold uppercase text-primary">Speaker notes</p>
                 {slide.notes}
               </div>
             )}
           </>
         )}
-      </div>
+      </div></div>
     </KnowledgeShell>
   );
 }
