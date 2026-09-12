@@ -102,7 +102,7 @@ function DemoTile({
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 }}
-      className="group relative overflow-hidden rounded-xl border bg-card shadow-sm transition-shadow hover:shadow-md"
+      className="group relative overflow-hidden rounded-xl border bg-card shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-lift"
     >
       <button
         type="button"
@@ -110,14 +110,14 @@ function DemoTile({
         className="block w-full text-left"
         aria-label={`Play ${demo.title}`}
       >
-        <div className="relative flex aspect-video items-center justify-center bg-muted">
+        <div className="relative flex aspect-video items-center justify-center overflow-hidden bg-muted">
           {demo.thumbnail_url ? (
             <img src={demo.thumbnail_url} alt="" className="h-full w-full object-cover" />
           ) : (
-            <Play className="h-10 w-10 text-muted-foreground/50" />
+            <div className="presentation-grid flex h-full w-full items-center justify-center"><span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary"><Play className="ml-1 h-6 w-6" /></span></div>
           )}
-          <span className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/25">
-            <Play className="h-9 w-9 text-white opacity-0 transition-opacity group-hover:opacity-100" />
+          <span className="absolute inset-0 flex items-center justify-center bg-foreground/0 transition-colors group-hover:bg-foreground/20">
+            <span className="flex h-12 w-12 scale-90 items-center justify-center rounded-full bg-card/95 text-primary opacity-0 shadow-xl transition group-hover:scale-100 group-hover:opacity-100"><Play className="ml-0.5 h-5 w-5" /></span>
           </span>
         </div>
         <div className="p-4">
@@ -232,8 +232,9 @@ export function DemoGallery() {
     <section>
       <div className="flex items-end justify-between">
         <div>
-          <h2 className="font-display text-lg font-medium">Product demos</h2>
-          <p className="text-sm text-muted-foreground">
+           <p className="text-xs font-semibold uppercase text-primary">Capability showcase</p>
+           <h2 className="mt-1 font-display text-xl font-semibold">Product demos</h2>
+           <p className="mt-1 text-sm text-muted-foreground">
             Watch what the team has built. {editable && "Drag a tile to rearrange."}
           </p>
         </div>
@@ -254,8 +255,10 @@ export function DemoGallery() {
       {demosQuery.isLoading ? (
         <p className="mt-6 text-sm text-muted-foreground">Loading demos…</p>
       ) : items.length === 0 ? (
-        <div className="mt-6 rounded-lg border border-dashed p-10 text-center text-sm text-muted-foreground">
-          No demos yet.{editable ? " Add the first one." : ""}
+        <div className="presentation-grid mt-5 rounded-xl border border-dashed bg-card/70 p-12 text-center">
+          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary"><Play className="h-5 w-5" /></span>
+          <p className="mt-4 text-sm font-semibold text-foreground">Your demo stage is ready</p>
+          <p className="mt-1 text-xs text-muted-foreground">{editable ? "Add the first product story to begin." : "No demos are available yet."}</p>
         </div>
       ) : (
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(e) => void onDragEnd(e)}>
