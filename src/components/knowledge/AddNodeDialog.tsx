@@ -151,7 +151,43 @@ export function AddNodeDialog({
               </SelectContent>
             </Select>
           </div>
+
+          {mode === "folder" && (
+            <>
+              <div className="space-y-1.5">
+                <Label>Access level</Label>
+                <Select value={accessLevel} onValueChange={(v) => setAccessLevel(v as typeof accessLevel)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="public">Public</SelectItem>
+                    <SelectItem value="internal">Internal</SelectItem>
+                    <SelectItem value="restricted">Restricted (admins only)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="node-badge">Label</Label>
+                <Input
+                  id="node-badge"
+                  value={badge}
+                  onChange={(e) => setBadge(e.target.value)}
+                  placeholder="e.g. New, Internal, Restricted"
+                />
+              </div>
+            </>
+          )}
+
+          {mode === "page" && (
+            <p className="text-xs text-muted-foreground">
+              New pages start with the standard structure: Overview, Objectives, Status, Resources &amp;
+              Capacity, Key Links, Owners, Next Steps.
+            </p>
+          )}
         </div>
+
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={saving}>
