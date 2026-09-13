@@ -203,7 +203,9 @@ export function KnowledgeTree({
           node={folder}
           onAddPage={onAddPage}
           onMoveFolder={onMoveFolder}
+          onEditFolder={onEditFolder}
         />
+
       ))}
       {tree.rootDocuments.filter(matchesDoc).map((doc) => (
         <DocRow key={doc.id} doc={doc} depth={0} />
