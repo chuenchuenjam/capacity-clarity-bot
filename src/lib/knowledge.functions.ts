@@ -158,16 +158,46 @@ const RoleInput = z.object({
   role: z.enum(["admin", "editor", "viewer"]),
 });
 
+async function assertAdmin(context: { supabase: any; userId: string }) {
+  const { data: isAdmin } = await context.supabase.rpc("has_role", {
+    _user_id: context.userId,
+    _role: "admin",
+  });
+  if (!isAdmin) throw new Error("Forbidden");
+}
+
+/** Replaces the user's roles with the single chosen role. */
 export const setUserRole = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) => RoleInput.parse(input))
   .handler(async ({ data, context }) => {
-    const { data: isAdmin } = await context.supabase.rpc("has_role", {
-      _user_id: context.userId,
-      _role: "admin",
-    });
-    if (!isAdmin) throw new Error("Forbidden");
-    const { error } = await context.supabase.from("user_roles").insert({ user_id: data.user_id, role: data.role });
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    if (data.role !== "admin") {
+      const { count } = await supabaseAdmin
+        .from("user_roles")
+        .select("user_id", { count: "exact", head: true })
+        .eq("role", "admin");
+      const { data: existing } = await supabaseAdmin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", data.user_id)
+        .eq("role", "admin");
+      if ((existing?.length ?? 0) > 0 && (count ?? 0) <= 1) {
+        throw new Error("At least one admin must remain");
+      }
+    }
+
+    const { error: delError } = await supabaseAdmin
+      .from("user_roles")
+      .delete()
+      .eq("user_id", data.user_id);
+    if (delError) throw delError;
+
+    const { error } = await supabaseAdmin
+      .from("user_roles")
+      .insert({ user_id: data.user_id, role: data.role });
     if (error) throw error;
     return { ok: true };
   });
@@ -176,12 +206,19 @@ export const deleteUserRole = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) => RoleInput.parse(input))
   .handler(async ({ data, context }) => {
-    const { data: isAdmin } = await context.supabase.rpc("has_role", {
-      _user_id: context.userId,
-      _role: "admin",
-    });
-    if (!isAdmin) throw new Error("Forbidden");
-    const { error } = await context.supabase
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    if (data.role === "admin") {
+      if (data.user_id === context.userId) throw new Error("You cannot remove your own admin role");
+      const { count } = await supabaseAdmin
+        .from("user_roles")
+        .select("user_id", { count: "exact", head: true })
+        .eq("role", "admin");
+      if ((count ?? 0) <= 1) throw new Error("At least one admin must remain");
+    }
+
+    const { error } = await supabaseAdmin
       .from("user_roles")
       .delete()
       .eq("user_id", data.user_id)
@@ -189,3 +226,4 @@ export const deleteUserRole = createServerFn({ method: "POST" })
     if (error) throw error;
     return { ok: true };
   });
+
