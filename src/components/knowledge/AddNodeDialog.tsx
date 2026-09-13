@@ -5,6 +5,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { createDocument, createFolder } from "@/lib/knowledge.functions";
 import type { FolderRow } from "@/lib/knowledge";
+import { defaultPageContent } from "@/lib/page-template";
+
 import {
   Dialog,
   DialogContent,
@@ -43,6 +45,8 @@ export function AddNodeDialog({
 }) {
   const [name, setName] = useState("");
   const [parentId, setParentId] = useState<string>(defaultParentId ?? ROOT);
+  const [accessLevel, setAccessLevel] = useState<"public" | "internal" | "restricted">("internal");
+  const [badge, setBadge] = useState("");
   const [saving, setSaving] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -53,6 +57,8 @@ export function AddNodeDialog({
     if (open) {
       setName("");
       setParentId(defaultParentId ?? ROOT);
+      setAccessLevel("internal");
+      setBadge("");
     }
   }, [open, defaultParentId]);
 
@@ -70,7 +76,12 @@ export function AddNodeDialog({
     try {
       if (mode === "page") {
         const created = await createDocumentFn({
-          data: { folder_id: parentId, title: trimmed, content: "", status: "draft" },
+          data: {
+            folder_id: parentId,
+            title: trimmed,
+            content: defaultPageContent(),
+            status: "draft",
+          },
         });
         await queryClient.invalidateQueries({ queryKey: ["tree"] });
         onOpenChange(false);
@@ -81,7 +92,8 @@ export function AddNodeDialog({
           data: {
             parent_id: parentId === ROOT ? null : parentId,
             name: trimmed,
-            access_level: "internal",
+            access_level: accessLevel,
+            badge: badge.trim() || null,
           },
         });
         await queryClient.invalidateQueries({ queryKey: ["tree"] });
@@ -94,6 +106,7 @@ export function AddNodeDialog({
       setSaving(false);
     }
   };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
