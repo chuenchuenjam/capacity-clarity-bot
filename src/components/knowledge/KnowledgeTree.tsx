@@ -56,12 +56,15 @@ function FolderBranch({
   depth = 0,
   onAddPage,
   onMoveFolder,
+  onEditFolder,
 }: {
   node: FolderNode;
   depth?: number;
   onAddPage?: ((folderId: string) => void) | undefined;
   onMoveFolder?: ((folderId: string) => void) | undefined;
+  onEditFolder?: ((folderId: string) => void) | undefined;
 }) {
+
   const [open, setOpen] = useState(true);
   const hasChildren = node.children.length > 0 || node.documents.length > 0;
 
