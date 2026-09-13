@@ -7,6 +7,7 @@ const UpdateInput = z.object({
   title: z.string().min(1),
   content: z.string(),
   status: z.enum(["draft", "in_review", "published"]),
+  badge: z.string().nullable().optional(),
 });
 
 export const updateDocument = createServerFn({ method: "POST" })
@@ -19,6 +20,7 @@ export const updateDocument = createServerFn({ method: "POST" })
         title: data.title,
         content: data.content,
         status: data.status,
+        ...(data.badge !== undefined ? { badge: data.badge } : {}),
         updated_by: context.userId,
         updated_at: new Date().toISOString(),
       })
@@ -26,6 +28,31 @@ export const updateDocument = createServerFn({ method: "POST" })
     if (error) throw error;
     return { ok: true };
   });
+
+const UpdateFolderInput = z.object({
+  id: z.string(),
+  name: z.string().min(1),
+  access_level: z.enum(["public", "internal", "restricted"]),
+  badge: z.string().nullable(),
+});
+
+export const updateFolder = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) => UpdateFolderInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("folders")
+      .update({
+        name: data.name,
+        access_level: data.access_level,
+        badge: data.badge,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", data.id);
+    if (error) throw error;
+    return { ok: true };
+  });
+
 
 const CreateDocInput = z.object({
   folder_id: z.string(),
