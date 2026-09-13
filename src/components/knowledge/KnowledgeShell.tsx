@@ -199,6 +199,15 @@ export function KnowledgeShell({ children }: { children: React.ReactNode }) {
         />
       )}
 
+      {editFolderId && (
+        <FolderSettingsDialog
+          open={!!editFolderId}
+          onOpenChange={(o) => !o && setEditFolderId(null)}
+          folder={treeQuery.data?.allFolders?.find((f) => f.id === editFolderId)}
+        />
+      )}
+
+
       <Sheet open={chatOpen} onOpenChange={setChatOpen}>
         <SheetContent className="w-full border-l border-border/60 p-0 sm:max-w-[560px]">
           <SheetHeader>

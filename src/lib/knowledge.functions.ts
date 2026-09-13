@@ -96,6 +96,7 @@ const CreateFolderInput = z.object({
   parent_id: z.string().nullable(),
   name: z.string().min(1),
   access_level: z.enum(["public", "internal", "restricted"]).default("internal"),
+  badge: z.string().nullable().default(null),
 });
 
 export const createFolder = createServerFn({ method: "POST" })
@@ -108,12 +109,14 @@ export const createFolder = createServerFn({ method: "POST" })
         parent_id: data.parent_id,
         name: data.name,
         access_level: data.access_level,
+        badge: data.badge,
       })
       .select("id")
       .single();
     if (error) throw error;
     return inserted;
   });
+
 
 export const deleteFolder = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
