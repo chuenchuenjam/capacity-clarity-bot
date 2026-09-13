@@ -3,6 +3,8 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { Bot, BookOpen, FilePlus, FolderPlus, LogOut, Menu, Search, Shield, User } from "lucide-react";
 import { AddNodeDialog, type AddNodeMode } from "./AddNodeDialog";
 import { MoveNodeDialog } from "./MoveNodeDialog";
+import { FolderSettingsDialog } from "./FolderSettingsDialog";
+
 import { useAuth, canEdit } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { fetchTree } from "@/lib/knowledge";
@@ -41,6 +43,8 @@ export function KnowledgeShell({ children }: { children: React.ReactNode }) {
   const [addMode, setAddMode] = useState<AddNodeMode>("page");
   const [addParentId, setAddParentId] = useState<string | null>(null);
   const [moveFolderId, setMoveFolderId] = useState<string | null>(null);
+  const [editFolderId, setEditFolderId] = useState<string | null>(null);
+
   const treeQuery = useQuery({ queryKey: ["tree"], queryFn: fetchTree });
   const editable = canEdit(role);
 
@@ -110,9 +114,11 @@ export function KnowledgeShell({ children }: { children: React.ReactNode }) {
                 ? {
                     onAddPage: (folderId: string) => openAdd("page", folderId),
                     onMoveFolder: (folderId: string) => setMoveFolderId(folderId),
+                    onEditFolder: (folderId: string) => setEditFolderId(folderId),
                   }
                 : {})}
             />
+
           )}
         </div>
 
