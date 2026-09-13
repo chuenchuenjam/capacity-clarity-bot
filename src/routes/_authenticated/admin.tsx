@@ -85,15 +85,22 @@ function AdminPage() {
           <Shield className="h-5 w-5 text-primary" />
           <h1 className="font-display text-2xl font-semibold">Admin</h1>
         </div>
-        <p className="mt-1 text-sm text-muted-foreground">Manage users and their roles.</p>
+        <p className="mt-1 text-sm text-muted-foreground">Manage people and what they can do.</p>
+
+        <div className="mt-4 grid gap-2 rounded-xl border bg-card p-4 text-sm shadow-soft sm:grid-cols-3">
+          <p><span className="font-semibold">Admin</span> — full control, including managing people.</p>
+          <p><span className="font-semibold">Editor</span> — can create and edit pages, sections and labels.</p>
+          <p><span className="font-semibold">Viewer</span> — read-only access.</p>
+        </div>
 
         <div className="mt-6 rounded-lg border">
           <div className="grid grid-cols-[1fr,1fr,1fr,auto] gap-4 border-b bg-muted/50 px-4 py-2 text-xs font-semibold uppercase text-muted-foreground">
             <span>User</span>
             <span>Email</span>
-            <span>Roles</span>
-            <span>Add role</span>
+            <span>Current role</span>
+            <span>Set role</span>
           </div>
+
           {isLoading ? (
             <div className="px-4 py-6 text-sm text-muted-foreground">Loading users...</div>
           ) : (
