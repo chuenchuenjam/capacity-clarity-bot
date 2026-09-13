@@ -171,12 +171,15 @@ export function KnowledgeTree({
   search,
   onAddPage,
   onMoveFolder,
+  onEditFolder,
 }: {
   tree: { folders: FolderNode[]; rootDocuments: DocumentRow[] };
   search: string;
   onAddPage?: ((folderId: string) => void) | undefined;
   onMoveFolder?: ((folderId: string) => void) | undefined;
+  onEditFolder?: ((folderId: string) => void) | undefined;
 }) {
+
   const q = search.trim().toLowerCase();
 
   const matchesFolder = (node: FolderNode): boolean => {
