@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useParams } from "@tanstack/react-router";
-import { ChevronRight, FileText, Folder, Lock, MoveRight, Plus } from "lucide-react";
+import { ChevronRight, FileText, Folder, Lock, MoveRight, Plus, Settings2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -111,6 +111,22 @@ function FolderBranch({
             <Plus className="h-3.5 w-3.5" />
           </Button>
         )}
+        {onEditFolder && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label={`Settings for ${node.name}`}
+            title="Section settings & labels"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEditFolder(node.id);
+            }}
+            className="h-7 w-7 shrink-0 text-sidebar-foreground/50 opacity-0 transition hover:bg-sidebar-accent hover:text-sidebar-foreground group-hover:opacity-100"
+          >
+            <Settings2 className="h-3.5 w-3.5" />
+          </Button>
+        )}
         {onMoveFolder && (
           <Button
             type="button"
@@ -137,6 +153,7 @@ function FolderBranch({
               depth={depth + 1}
               onAddPage={onAddPage}
               onMoveFolder={onMoveFolder}
+              onEditFolder={onEditFolder}
             />
           ))}
           {node.documents.map((doc) => (
@@ -144,6 +161,7 @@ function FolderBranch({
           ))}
         </div>
       )}
+
     </div>
   );
 }
