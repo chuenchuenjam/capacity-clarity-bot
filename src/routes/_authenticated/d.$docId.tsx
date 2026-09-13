@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { ChevronDown, ChevronRight, Download, FileText, Link2, MoveRight, Paperclip, Plus, Trash2, Upload } from "lucide-react";
+import { ChevronDown, ChevronRight, Download, FileText, LayoutTemplate, Link2, MoveRight, Paperclip, Plus, Trash2, Upload } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth, canEdit } from "@/lib/auth";
@@ -12,6 +12,8 @@ import { MediaPreview } from "@/components/media/MediaPreview";
 import { EmbedView } from "@/components/media/EmbedView";
 import { MoveNodeDialog } from "@/components/knowledge/MoveNodeDialog";
 import { updateDocument, deleteDocument } from "@/lib/knowledge.functions";
+import { mergeTemplate } from "@/lib/page-template";
+
 import { KnowledgeShell } from "@/components/knowledge/KnowledgeShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -98,6 +100,7 @@ function DocumentPage() {
   const [title, setTitle] = useState(doc?.title ?? "");
   const [content, setContent] = useState(doc?.content ?? "");
   const [status, setStatus] = useState(doc?.status ?? "draft");
+  const [badge, setBadge] = useState(doc?.badge ?? "");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -106,8 +109,9 @@ function DocumentPage() {
       setTitle(doc.title);
       setContent(doc.content);
       setStatus(doc.status);
+      setBadge(doc.badge ?? "");
     }
-  }, [doc?.id, doc?.title, doc?.content, doc?.status]);
+  }, [doc?.id, doc?.title, doc?.content, doc?.status, doc?.badge]);
 
   const breadcrumb = useMemo(() => {
     const folders = treeQuery.data?.allFolders ?? [];
@@ -117,7 +121,8 @@ function DocumentPage() {
   const doSave = async () => {
     setSaving(true);
     try {
-      await updateDocFn({ data: { id: docId, title, content, status } });
+      await updateDocFn({ data: { id: docId, title, content, status, badge: badge.trim() || null } });
+
       await queryClient.invalidateQueries({ queryKey: ["document", docId] });
       await queryClient.invalidateQueries({ queryKey: ["tree"] });
       setEditing(false);
@@ -236,6 +241,12 @@ function DocumentPage() {
             <div className="flex flex-wrap items-center gap-2">
               {editing ? (
                 <>
+                  <Input
+                    value={badge}
+                    onChange={(e) => setBadge(e.target.value)}
+                    placeholder="Label e.g. Internal"
+                    className="h-8 w-40 text-xs"
+                  />
                   <Select value={status} onValueChange={(v) => setStatus(v as any)}>
                     <SelectTrigger className="h-8 w-36 text-xs">
                       <SelectValue />
@@ -246,6 +257,14 @@ function DocumentPage() {
                       <SelectItem value="published">Published</SelectItem>
                     </SelectContent>
                   </Select>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setContent((c) => mergeTemplate(c))}
+                  >
+                    <LayoutTemplate className="mr-1.5 h-3.5 w-3.5" />
+                    Insert template
+                  </Button>
                   <Button size="sm" onClick={() => void doSave()} disabled={saving}>
                     Save
                   </Button>
@@ -255,9 +274,15 @@ function DocumentPage() {
                 </>
               ) : (
                 <>
+                  {doc?.badge && (
+                    <span className="rounded-full border px-2.5 py-1 text-xs font-medium text-muted-foreground">
+                      {doc.badge}
+                    </span>
+                  )}
                    <span className="rounded-full border border-primary/15 bg-primary/8 px-2.5 py-1 text-xs font-medium text-primary">
                     {statusLabels[doc?.status ?? "draft"]}
                   </span>
+
                   <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
                     Edit
                   </Button>

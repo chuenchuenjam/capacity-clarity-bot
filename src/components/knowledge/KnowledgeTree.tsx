@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useParams } from "@tanstack/react-router";
-import { ChevronRight, FileText, Folder, Lock, MoveRight, Plus } from "lucide-react";
+import { ChevronRight, FileText, Folder, Lock, MoveRight, Plus, Settings2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -56,12 +56,15 @@ function FolderBranch({
   depth = 0,
   onAddPage,
   onMoveFolder,
+  onEditFolder,
 }: {
   node: FolderNode;
   depth?: number;
   onAddPage?: ((folderId: string) => void) | undefined;
   onMoveFolder?: ((folderId: string) => void) | undefined;
+  onEditFolder?: ((folderId: string) => void) | undefined;
 }) {
+
   const [open, setOpen] = useState(true);
   const hasChildren = node.children.length > 0 || node.documents.length > 0;
 
@@ -108,6 +111,22 @@ function FolderBranch({
             <Plus className="h-3.5 w-3.5" />
           </Button>
         )}
+        {onEditFolder && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            aria-label={`Settings for ${node.name}`}
+            title="Section settings & labels"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEditFolder(node.id);
+            }}
+            className="h-7 w-7 shrink-0 text-sidebar-foreground/50 opacity-0 transition hover:bg-sidebar-accent hover:text-sidebar-foreground group-hover:opacity-100"
+          >
+            <Settings2 className="h-3.5 w-3.5" />
+          </Button>
+        )}
         {onMoveFolder && (
           <Button
             type="button"
@@ -134,6 +153,7 @@ function FolderBranch({
               depth={depth + 1}
               onAddPage={onAddPage}
               onMoveFolder={onMoveFolder}
+              onEditFolder={onEditFolder}
             />
           ))}
           {node.documents.map((doc) => (
@@ -141,6 +161,7 @@ function FolderBranch({
           ))}
         </div>
       )}
+
     </div>
   );
 }
@@ -150,12 +171,15 @@ export function KnowledgeTree({
   search,
   onAddPage,
   onMoveFolder,
+  onEditFolder,
 }: {
   tree: { folders: FolderNode[]; rootDocuments: DocumentRow[] };
   search: string;
   onAddPage?: ((folderId: string) => void) | undefined;
   onMoveFolder?: ((folderId: string) => void) | undefined;
+  onEditFolder?: ((folderId: string) => void) | undefined;
 }) {
+
   const q = search.trim().toLowerCase();
 
   const matchesFolder = (node: FolderNode): boolean => {
@@ -179,7 +203,9 @@ export function KnowledgeTree({
           node={folder}
           onAddPage={onAddPage}
           onMoveFolder={onMoveFolder}
+          onEditFolder={onEditFolder}
         />
+
       ))}
       {tree.rootDocuments.filter(matchesDoc).map((doc) => (
         <DocRow key={doc.id} doc={doc} depth={0} />
