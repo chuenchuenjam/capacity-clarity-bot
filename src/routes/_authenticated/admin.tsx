@@ -61,25 +61,22 @@ function AdminPage() {
     try {
       await setRoleFn({ data: { user_id: targetId, role } });
       await queryClient.invalidateQueries({ queryKey: ["admin-users"] });
-      toast.success("Role updated");
-    } catch (error) {
-      toast.error("Failed to update role");
+      toast.success(`Role set to ${role}`);
+    } catch (error: any) {
+      toast.error(error?.message?.includes("admin") ? error.message : "Failed to update role");
     }
   };
 
   const removeRole = async (targetId: string, role: "admin" | "editor" | "viewer") => {
-    if (targetId === user?.id && role === "admin") {
-      toast.error("You cannot remove your own admin role here");
-      return;
-    }
     try {
       await deleteRoleFn({ data: { user_id: targetId, role } });
       await queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       toast.success("Role removed");
-    } catch (error) {
-      toast.error("Failed to remove role");
+    } catch (error: any) {
+      toast.error(error?.message?.includes("admin") ? error.message : "Failed to remove role");
     }
   };
+
 
   return (
     <KnowledgeShell>
