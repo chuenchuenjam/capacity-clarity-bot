@@ -316,6 +316,112 @@ export type Database = {
         }
         Relationships: []
       }
+      roadmap_initiatives: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          document_id: string | null
+          documents_data: string
+          downstream_use: string
+          end_period: string
+          folder_id: string | null
+          id: string
+          position: number
+          region_product: string
+          stage_note: string
+          start_period: string
+          status_id: string | null
+          stream: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          document_id?: string | null
+          documents_data?: string
+          downstream_use?: string
+          end_period?: string
+          folder_id?: string | null
+          id?: string
+          position?: number
+          region_product?: string
+          stage_note?: string
+          start_period?: string
+          status_id?: string | null
+          stream?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          document_id?: string | null
+          documents_data?: string
+          downstream_use?: string
+          end_period?: string
+          folder_id?: string | null
+          id?: string
+          position?: number
+          region_product?: string
+          stage_note?: string
+          start_period?: string
+          status_id?: string | null
+          stream?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "roadmap_initiatives_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "roadmap_initiatives_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "roadmap_initiatives_status_id_fkey"
+            columns: ["status_id"]
+            isOneToOne: false
+            referencedRelation: "roadmap_statuses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      roadmap_statuses: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          label: string
+          position: number
+          updated_at: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id?: string
+          label: string
+          position?: number
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          label?: string
+          position?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

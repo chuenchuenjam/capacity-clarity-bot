@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Bot, BookOpen, FilePlus, FolderPlus, LogOut, Menu, Search, Shield, User } from "lucide-react";
+import { Bot, BookOpen, FilePlus, FolderPlus, GanttChartSquare, LogOut, Menu, Search, Shield, User } from "lucide-react";
 import { AddNodeDialog, type AddNodeMode } from "./AddNodeDialog";
 import { MoveNodeDialog } from "./MoveNodeDialog";
 import { FolderSettingsDialog } from "./FolderSettingsDialog";
@@ -78,6 +78,20 @@ export function KnowledgeShell({ children }: { children: React.ReactNode }) {
               className="h-8 border-sidebar-border/30 bg-sidebar/50 pl-8 text-xs text-sidebar-foreground placeholder:text-sidebar-foreground/40 focus-visible:ring-sidebar-ring"
             />
           </div>
+        </div>
+
+        <div className="px-3 pb-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            asChild
+            className="h-8 w-full justify-start text-xs text-sidebar-foreground hover:bg-sidebar-accent/50"
+          >
+            <Link to="/roadmap">
+              <GanttChartSquare className="mr-1.5 h-3.5 w-3.5" />
+              Capabilities & roadmap
+            </Link>
+          </Button>
         </div>
 
         {editable && (
