@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Bot, BookOpen, FilePlus, FolderPlus, LogOut, Menu, Search, Shield, User } from "lucide-react";
+import { Bot, BookOpen, FilePlus, FolderPlus, GanttChartSquare, LogOut, Menu, Search, Shield, User } from "lucide-react";
 import { AddNodeDialog, type AddNodeMode } from "./AddNodeDialog";
 import { MoveNodeDialog } from "./MoveNodeDialog";
 import { FolderSettingsDialog } from "./FolderSettingsDialog";
