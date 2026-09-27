@@ -178,5 +178,6 @@ export function RoadmapGantt({
         </div>
       </div>
     </div>
+    </>
   );
 }
