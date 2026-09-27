@@ -80,6 +80,20 @@ export function KnowledgeShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
+        <div className="px-3 pb-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            asChild
+            className="h-8 w-full justify-start text-xs text-sidebar-foreground hover:bg-sidebar-accent/50"
+          >
+            <Link to="/roadmap">
+              <GanttChartSquare className="mr-1.5 h-3.5 w-3.5" />
+              Capabilities & roadmap
+            </Link>
+          </Button>
+        </div>
+
         {editable && (
           <div className="flex gap-1.5 px-3 pb-2">
             <Button
